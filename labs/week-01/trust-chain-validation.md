@@ -23,13 +23,13 @@ Embed the screenshot below:
 ## Certificate Chain Breakdown
 
 **Leaf (Server) Certificate**  
-*.google.com
+    *.google.com
 
-**Intermediate Certificate Authority**
-GTS WR2
+**Intermediate Certificate Authority**  
+    GTS WR2
 
-**Root Certificate Authority (Trust Anchor)**
-GTS Root R1
+**Root Certificate Authority (Trust Anchor)**  
+    GTS Root R1
 
 ---
 
@@ -39,10 +39,13 @@ Is the Root CA marked as trusted by your system?
 
 Yes.
 
-If yes, explain where that trust comes from (OS/browser root store).
-GTS Root R1 is trsuted by my stsem because it is listed in my browser's root certificate store.
+If yes, explain where that trust comes from (OS/browser root store). 
 
-If no, explain what warning or behavior occurred.
+GTS Root R1 is trusted by my system because it is listed in my browser's root certificate store.
+
+If no, explain what warning or behavior occurred. 
+
+N/A
 
 ---
 
@@ -67,7 +70,7 @@ The browser determines trust by checking if the root CA is in its pre-installed 
 In 3–5 sentences, explain:
 
 The root certificate is called the trust anchor because it's the foundation of trust. 
-Validation starts at the root and if it checks out, then it checks the intermediary, and then the server certificate.
+Validation starts at the server and if it checks out, checks the intermediate all the way to the root certificate. If the root CA is trusted, then the entire chain is trusted.
 If the Root CA wasn't trusted the webpage would be inaccessible because the chain of trust would be broken and a security warning would be issued.
 
 
