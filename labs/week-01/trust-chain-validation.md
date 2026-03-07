@@ -55,7 +55,7 @@ Document three observations about the certificate.
 
 ### Observation 1
 The certificate structure is hierarchical with three levels: the root CA (GTS Root R1) at the top, the intermediate CA (GTS WR2) in the middle, and the server certificate (*.google.com) at the bottom. 
-In Firefox, these certificates are displayed as seperate tabs rather than a visual tree diagram, but they still form the same chain of trust where each certficiate is issued by the one above it. 
+I checked the certificate in both Chrome and Firefox. In Firefox, the certificates are displayed as separate tabs rather than a visual tree diagram, but they still form the same chain of trust, with each certificate issued by the one above it.
 
 ### Observation 2
 The root CA is self-signed, meaning it issues itself. It's the foundation of trust and pre-installed in the browser's root certificate store. Unlike the other certificates, it doesn't need to be verified by another authority becasue it's the top-level authority.
