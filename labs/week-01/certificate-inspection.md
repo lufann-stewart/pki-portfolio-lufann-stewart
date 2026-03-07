@@ -14,20 +14,20 @@ assets/screenshots/week-01/certificate-inspection.png
 
 ## Website Information
 
-**Website inspected:**  
-<!-- Enter full URL -->
+**Website inspected:**    
+https://www.google.com/
 
-**Issuer (Certificate Authority):**  
-<!-- Example: DigiCert, Let's Encrypt, GlobalSign -->
+**Issuer (Certificate Authority):**    
+SJ Pulse Root CA  
 
-**Valid from:**  
-<!-- Start date -->
+**Valid from:**      
+November 19, 2024
 
-**Valid until:**  
-<!-- Expiration date -->
+**Valid until:**    
+November 19, 2026
 
-**Signature algorithm:**  
-<!-- Example: sha256WithRSAEncryption -->
+**Signature algorithm:**    
+SHA-384 with RSA Encryption
 
 ---
 
@@ -35,24 +35,26 @@ assets/screenshots/week-01/certificate-inspection.png
 
 List at least 2–3 SAN entries:
 
-- 
-- 
-- 
+- *.google.com
 
----
+- *.appengine.google.com
+
+- *.bdn.dev
+
 
 ## Observations
 
 Document three observations about the certificate.
 
 ### Observation 1
-<!-- What did you notice? -->
+The certificate uses Version 3.
 
 ### Observation 2
-<!-- What did you notice? -->
+The Key Usage field is marked critical and specifies that the certificate can be used for digital signatures, non-repudiation, and key encipherment.
+
 
 ### Observation 3
-<!-- What did you notice? -->
+The Basic Constraints field is marked as critical and indicates the the certificate is not a certificate authority.
 
 ---
 
@@ -60,4 +62,4 @@ Document three observations about the certificate.
 
 Based on your inspection, explain how this certificate contributes to secure HTTPS communication.
 
-(2–3 sentences)
+Based on the inspection, this certificate contributes to secure HTTPS communication through the process of validation, starting with the server certificate and moving up the chain to the root. The browser validates it by checking that each certificate is valid, not expired, not revoked, and correctly issued. Once validated, the browser can confirm that the server is who it claims to be and safely perform the TLS handshake to ensure HTTPS communication.
