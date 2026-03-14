@@ -31,14 +31,14 @@ GitHub’s web interface cannot run OpenSSL commands.
 ### Step 1 — Create Artifact Directory
 From the root of your directory:
 mkdir -p labs/02-week-02-cryptography-fundamentals/submissions/encrypted
-![Step 1 Screenshot](../assets/screenshots/week-02/Step1.png)
+![Step 1](../../assets/screenshots/week-02/Step1.png)
 
 ### Step 2 — Create a Plaintext File
 echo "Week 2 Symmetric Encryption Lab - CVI" > labs/02-week-02-cryptography-fundamentals/submissions/encrypted/plaintext.txt
 
 Open the file and confirm it is readable.
-![Step 2 Screenshot](../assets/screenshots/week-02/Step2.png)
-![Step 2A Screenshot](../assets/screenshots/week-02/Step2A.png)
+![Step 2](../../assets/screenshots/week-02/Step2.png)
+![Step 2A](../../assets/screenshots/week-02/Step2A.png)
 
 ### Step 3 — Encrypt the File
 Use AES-256 encryption with password-based key derivation:
@@ -52,8 +52,8 @@ You will be prompted for a password.
 Observe:
 - The encrypted file is unreadable.
 - It contains binary ciphertext.
-![Step 3A Screenshot](../assets/screenshots/week-02/Step3A.png)
-![Step 3A Screenshot](../assets/screenshots/week-02/Step3A.png)
+![Step 3](../../assets/screenshots/week-02/Step3.png)
+![Step 3A](../../assets/screenshots/week-02/Step3A.png)
 
 ### Step 4 — Decrypt the File
 openssl enc -d -aes-256-cbc -pbkdf2 \
@@ -61,14 +61,14 @@ openssl enc -d -aes-256-cbc -pbkdf2 \
   -out labs/02-week-02-cryptography-fundamentals/submissions/encrypted/plaintext.decrypted.txt
 
 Enter the same password used during encryption.
-![Step 4 Screenshot](../assets/screenshots/week-02/Step4.png)
+![Step 4](../../assets/screenshots/week-02/Step4.png)
 
 ### Step 5 — Verify Integrity of Decrypted File
 diff labs/02-week-02-cryptography-fundamentals/submissions/encrypted/plaintext.txt \
      labs/02-week-02-cryptography-fundamentals/submissions/encrypted/plaintext.decrypted.txt
 
 If no output appears, the files are identical.
-![Step 5 Screenshot](../assets/screenshots/week-02/Step5.png)
+![Step 5](../../assets/screenshots/week-02/Step5.png)
 
 ## Part 3 — Observations
 Document the following in your Week 2 lab notes:
