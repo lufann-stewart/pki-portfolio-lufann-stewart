@@ -32,14 +32,14 @@ All commands must be executed locally.
 From the root of your repository:
 
 mkdir -p labs/02-week-02-cryptography-fundamentals/submissions/hashes
-![Lab 2 Step 1](../../../assets/screenshots/week-02/Lab2Step1.png)
-![Lab 2 Step 1A](../../../assets/screenshots/week-02/Lab2Step1A.png)
+![Lab2 Step1](../../../../assets/screenshots/week-02/Lab2Step1.png)
+![Lab2 Step1A](../../../../assets/screenshots/week-02/Lab2Step1A.png)
 
 ### Step 2 — Create a Test File
 echo "Week 2 Hashing Lab - CVI" > labs/02-week-02-cryptography-fundamentals/submissions/hashes/message.txt
 
 Open the file and confirm it is readable.
-![Lab 2 Step 2](../../../assets/screenshots/week-02/Lab2Step2.png)
+![Lab2 Step2](../../../../assets/screenshots/week-02/Lab2Step2.png)
 
 ### Step 3 — Generate a SHA-256 Hash
 openssl dgst -sha256 labs/02-week-02-cryptography-fundamentals/submissions/hashes/message.txt > labs/02-week-02-cryptography-fundamentals/submissions/hashes/message.sha256.txt
@@ -49,13 +49,13 @@ Open the hash file and observe:
 - A hexadecimal string
 - The algorithm used (SHA-256)
   
-![Lab 2 Step 3](../../../assets/screenshots/week-02/Lab2Step3.png)
+![Lab2 Step3](../../../../assets/screenshots/week-02/Lab2Step3.png)
 
 ### Step 4 — Modify (Tamper With) the File
 echo "tampered" >> labs/02-week-02-cryptography-fundamentals/submissions/hashes/message.txt
 
 Even a single character change is enough.
-![Lab 2 Step 4](../../../assets/screenshots/week-02/Lab2Step4.png)
+![Lab2 Step4](../../../../assets/screenshots/week-02/Lab2Step4.png)
 
 ### Step 5 — Generate a New Hash
 openssl dgst -sha256 labs/02-week-02-cryptography-fundamentals/submissions/hashes/message.txt > labs/02-week-02-cryptography-fundamentals/submissions/hashes/message_tampered.sha256.txt
@@ -63,7 +63,7 @@ openssl dgst -sha256 labs/02-week-02-cryptography-fundamentals/submissions/hashe
 Compare the two hash outputs of message.sha256.txt and message_tampered.sha256.txt
 
 They should be completely different.
-![Lab 2 Step 5](../../../assets/screenshots/week-02/Lab2Step5.png)
+![Lab2 Step5](../../../../assets/screenshots/week-02/Lab2Step5.png)
 
 ## Part 3 — Observations
 Document the following in your Week 2 notes:
