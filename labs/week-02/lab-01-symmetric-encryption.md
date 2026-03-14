@@ -61,7 +61,7 @@ openssl enc -d -aes-256-cbc -pbkdf2 \
   -out labs/02-week-02-cryptography-fundamentals/submissions/encrypted/plaintext.decrypted.txt
 
 Enter the same password used during encryption.
-
+![Step 4](../../assets/screenshots/week-02/Step4.png)
 
 ### Step 5 — Verify Integrity of Decrypted File
 diff labs/02-week-02-cryptography-fundamentals/submissions/encrypted/plaintext.txt \
