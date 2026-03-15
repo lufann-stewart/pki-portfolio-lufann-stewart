@@ -33,3 +33,20 @@ What security property hashing provides
 
 Where hashing is used in PKI systems
  >In PKI, hashes are used in digital signatures. Instead of signing the whole document, the sender hashes the document and signs the hash. The receiver can hash the document themselves and verify the signature to ensure the data wasn’t tampered with and came from the correct sender.
+
+
+# Lab 3:
+
+Document the following in your Week 3 notes:
+
+Why verification succeeds before tampering  
+ >The signature matches the file, so it all checks out — nothing’s been changed.
+
+Why verification fails after modification
+ >If you change the file, the signature doesn’t match anymore, so it shows as invalid.
+
+Why digital signatures require both hashing and asymmetric cryptography  
+ >Hashing makes sure the file didn’t get messed with, and the private key proves who signed it. You need both to trust the file.
+
+How this relates to certificate signing in PKI
+ >Certificate Authorities do the same thing — they sign a hashed certificate so you can check it’s real and hasn’t been altered.
