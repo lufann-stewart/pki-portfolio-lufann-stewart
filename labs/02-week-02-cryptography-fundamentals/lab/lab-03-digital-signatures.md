@@ -34,17 +34,17 @@ All commands must be executed locally.
 From the root of your repository:
 
 mkdir -p labs/02-week-02-cryptography-fundamentals/submissions/signatures
-![Lab3 Step 1](../../../../assets/screenshots/week-02/Lab3Step1.png)
-![Lab3 Step 1A](../../../../assets/screenshots/week-02/Lab3Step1A.png.png)
+![Lab 3 Step 1](../../../assets/screenshots/week-02/Lab3Step1.png)
+![Lab3 Step 1A](../../../assets/screenshots/week-02/Lab3Step1A.png.png)
 
 
 ### Step 2 — Create a File to Sign
 echo "Week 2 Digital Signature Lab - CVI" > labs/02-week-02-cryptography-fundamentals/submissions/signatures/artifact.txt
-![Lab3 Step 2](../../../../assets/screenshots/week-02/Lab3Step2.png)
+![Lab3 Step 2](../../../assets/screenshots/week-02/Lab3Step2.png)
 
 ### Step 3 — Generate a Private Key
 openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out labs/02-week-02-cryptography-fundamentals/submissions/signatures/private_key.pem
-![Lab3 Step 3](../../../../assets/screenshots/week-02/Lab3Step3.png)
+![Lab3 Step 3](../../../assets/screenshots/week-02/Lab3Step3.png)
   
 ### Step 4 — Extract the Public Key
 openssl pkey \
@@ -52,7 +52,7 @@ openssl pkey \
   -pubout \
   -out labs/02-week-02-cryptography-fundamentals/submissions/signatures/public_key.pem
   
-![Lab3 Step 4](../../../../assets/screenshots/week-02/Lab3Step4.png)
+![Lab3 Step 4](../../../assets/screenshots/week-02/Lab3Step4.png)
   
 ### Step 5 — Sign the File
 openssl dgst -sha256 \
@@ -61,7 +61,7 @@ openssl dgst -sha256 \
   labs/02-week-02-cryptography-fundamentals/submissions/signatures/artifact.txt
 
 This produces a digital signature file.
-![Lab3 Step 5](../../../../assets/screenshots/week-02/Lab3Step5.png)
+![Lab3 Step 5](../../../assets/screenshots/week-02/Lab3Step5.png)
 
 ### Step 6 — Verify the Signature
 openssl dgst -sha256 \
@@ -72,7 +72,7 @@ openssl dgst -sha256 \
 Expected output:
 
 Verified OK
-![Lab3 Step 6](../../../../assets/screenshots/week-02/Lab3Step6.png)
+![Lab3 Step 6](../../../assets/screenshots/week-02/Lab3Step6.png)
 
 ### Step 7 — Tamper With the File
 echo "tampered" >> labs/02-week-02-cryptography-fundamentals/submissions/signatures/artifact.txt
@@ -80,7 +80,7 @@ echo "tampered" >> labs/02-week-02-cryptography-fundamentals/submissions/signatu
 Now verify again using the same command.
 
 The verification should fail.
-![Lab3 Step 7](../../../../assets/screenshots/week-02/Lab3Step7.png)
+![Lab3 Step 7](../../../assets/screenshots/week-02/Lab3Step7.png)
 
 ## Part 3 — Observations
 Document the following in your Week 2 notes:
