@@ -35,7 +35,7 @@ From the root of your repository:
 
 mkdir -p labs/02-week-02-cryptography-fundamentals/submissions/signatures
 ![Lab3 Step 1](../../../../assets/screenshots/week-02/Lab3Step1.png)
-![Lab3 Step 1A](../../../../assets/screenshots/week-02/Lab3Step1A.png)
+![Lab3 Step 1A](../../../../assets/screenshots/week-02/Lab3Step1A.png.png)
 
 
 ### Step 2 — Create a File to Sign
