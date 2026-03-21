@@ -1,0 +1,54 @@
+
+# Lab 03 — Verify a Certificate Chain
+
+## Overview
+Briefly describe what this lab was about in your own words.
+What PKI concept were you investigating?
+
+---
+
+## Environment
+- OS: Windows
+- Terminal used (Mac Terminal / Git Bash / WSL): Command Prompt (cmd.exe)
+- OpenSSL version (`openssl version`): OpenSSL 3.6.1 
+- Website used: tmobile.com
+
+---
+
+## Chain Verification Result
+Paste the output of your `openssl verify` command:
+  >C=US, ST=Washington, L=Bellevue, O=T-Mobile USA, Inc., CN=www.t-mobile.com
+error 20 at 0 depth lookup: unable to get local issuer certificate
+error C:\Users\lmste\Documents\leaf_cert.pem: verification failed
+
+---
+
+## Certificate Roles
+
+| Certificate  | Role                        | Key Indicator                    |
+|--------------|-----------------------------|----------------------------------|
+| root.pem     |    Root CA                         |   Self-signed, trusted by browser                               |
+| intermediate.pem |    Intermediate CA                     |  Signed by root, signs server cert                                |
+| server.pem   |          Server CA                   |          `CN = www.t-mobile.com/ `signed by intermediate                     |
+
+---
+
+## Observations
+
+1. Did the chain verify successfully? What did the output say?  
+> The output was C=US, ST=Washington, L=Bellevue, O=T-Mobile USA, Inc., `CN=www.t-mobile.com`  
+> error 20 at 0 depth lookup: unable to get local issuer certificate  
+> error C:\Users\lmste\Documents\leaf_cert.pem: verification failed  
+> The chain did not verify successfully because the intermediate certificate wasn't provided, so the chain couldn't be completed.
+
+2. How did you identify the root CA?  
+> I looked at the Issuer field of the top certificate in the chain. The root is self-signed, meaning its Issuer and Subject are the same.
+
+3. How did you identify the intermediate CA?  
+> I checked the CN in the Subject field of the certificate that issued the leaf/server certificate. The intermediate sits between the root and the leaf.
+
+4. What field confirms whether a certificate can issue other certificates?  
+> The Basic Constraints field. Root and intermediate certificates have CA:TRUE, while the leaf/server certificate has CA:FALSE.
+
+5. Why does removing the intermediate certificate break the chain?  
+> Because each part of the chain must be valid and trusted. If the intermediate certificate is missing, the chain is broken and the browser/OpenSSL cannot trust the server certificate.
