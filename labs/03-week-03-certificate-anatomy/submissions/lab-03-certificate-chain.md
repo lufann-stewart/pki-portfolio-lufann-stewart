@@ -39,13 +39,13 @@ error C:\Users\lmste\Documents\leaf_cert.pem: verification failed
 > The output was C=US, ST=Washington, L=Bellevue, O=T-Mobile USA, Inc., `CN=www.t-mobile.com`  
 > error 20 at 0 depth lookup: unable to get local issuer certificate  
 > error C:\Users\lmste\Documents\leaf_cert.pem: verification failed  
-> The chain did not verify successfully because the intermediate certificate wasn't provided, so the chain couldn't be completed.
+> The chain didn’t verify successfully because the intermediate certificate wasn't provided, which broke the chain.
 
 2. How did you identify the root CA?  
-> I looked at the Issuer field of the top certificate in the chain. The root is self-signed, meaning its Issuer and Subject are the same.
+> I could tell it was the root because it's self-signed, so the Issuer and Subject are the same. Plus, the Basic Constraints were set to True. Those two things told me it was the root.
 
 3. How did you identify the intermediate CA?  
-> I checked the CN in the Subject field of the certificate that issued the leaf/server certificate. The intermediate sits between the root and the leaf.
+> I looked at the CN in the Subject field, and it didn’t match the CN in the Issuer field, which helped me figure out it was the intermediate. Also, the Basic Constraints being True made it clear it was an intermediate since it could issue certificates. Those two things made it pretty clear.
 
 4. What field confirms whether a certificate can issue other certificates?  
 > The Basic Constraints field. Root and intermediate certificates have CA:TRUE, while the leaf/server certificate has CA:FALSE.
