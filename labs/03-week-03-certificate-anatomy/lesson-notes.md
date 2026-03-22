@@ -28,7 +28,8 @@ How this concept appears in real enterprise environments.
     
 - Components
   >System Components/Actors: Root CA, Intermediate CA, Server (leaf), Client.
-  >(Key Certificate Fields): Subject/Issuer, EKU (Extended Key Usage), Basic Constraints, Validity Period, and more.
+  
+  >Key Certificate Fields: Subject/Issuer, EKU (Extended Key Usage), Basic Constraints, Validity Period, and more.
   
 - Flow
   >1. Client requests HTTPS from server.
