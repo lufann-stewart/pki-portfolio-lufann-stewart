@@ -1,106 +1,113 @@
-# Lab — Symmetric Encryption (Confidentiality)
 
-## Goal
+# Lab 1 — Symmetric Encryption
+ 
+## Overview
+Briefly describe the purpose of this lab in your own words.
+  >The purpose of this lab was to create, exncryot, decrypt and inspect the decrypted file to see if there were and changes made to the file.
 
-This lab builds operational understanding of symmetric encryption and the security property of confidentiality.
-
-You will:
-
-- Encrypt a file using AES
-- Decrypt it back to its original form
-- Observe how ciphertext differs from plaintext
-- Understand why symmetric encryption is used in TLS for bulk data protection
-
+What PKI concept or system behavior were you investigating?
+  >Symmetric Encryption.
+ 
 ---
-
-## Part 1 — Setup
-
-### Prerequisites
-
-- OpenSSL installed
-- Access to a local terminal (Mac Terminal, Git Bash, or WSL)
-- Your Week 2 portfolio folder created
-
-All commands must be executed locally.  
-GitHub’s web interface cannot run OpenSSL commands.
-
+ 
+## Environment
+Document the environment used to complete the lab.
+ 
+- Operating System: Windows
+- Terminal Used: Command Prompt (cmd.exe)
+- OpenSSL Version (if applicable): OpenSSL 3.6.1 
+ 
 ---
+ 
+## Steps Performed
+Summarize the key steps you performed to complete the lab.
+ 
+Do **not copy the lab instructions**.
+Describe what you actually did.  
 
-## Part 2 — Execution Steps
+*Using commands I:
+ 
+1. Created the labs directory structure for submissions.
 
-### Step 1 — Create Artifact Directory
-From the root of your directory:
-mkdir -p labs/02-week-02-cryptography-fundamentals/submissions/encrypted
-![Step 1](../../../assets/screenshots/week-02/Step1.png)
+2. Created a plaintext file named plaintext.txt containing the text: "Week 2 Symmetric Encryption Lab - CVI".
 
-### Step 2 — Create a Plaintext File
-echo "Week 2 Symmetric Encryption Lab - CVI" > labs/02-week-02-cryptography-fundamentals/submissions/encrypted/plaintext.txt
+3. Encrypted the plaintext.txt file with a password, resulting in plaintext.txt.enc.
 
-Open the file and confirm it is readable.
-![Step 2](../../../assets/screenshots/week-02/Step2.png)
-![Step 2a](../../../assets/screenshots/week-02/Step2A.png)
+4. Decrypted plaintext.txt.enc using the same password, producing plaintext.decrypted.txt.
 
-### Step 3 — Encrypt the File
-Use AES-256 encryption with password-based key derivation:
-
-openssl enc -aes-256-cbc -salt -pbkdf2 \
-  -in labs/02-week-02-cryptography-fundamentals/submissions/encrypted/plaintext.txt \
-  -out labs/02-week-02-cryptography-fundamentals/submissions/encrypted/plaintext.txt.enc
-
-You will be prompted for a password.
-
-Observe:
-- The encrypted file is unreadable.
-- It contains binary ciphertext.
-![Step 3](../../../assets/screenshots/week-02/Step3.png)
-![Step 3a](../../../assets/screenshots/week-02/Step3A.png)
-
-### Step 4 — Decrypt the File
-openssl enc -d -aes-256-cbc -pbkdf2 \
-  -in labs/02-week-02-cryptography-fundamentals/submissions/encrypted/plaintext.txt.enc \
-  -out labs/02-week-02-cryptography-fundamentals/submissions/encrypted/plaintext.decrypted.txt
-
-Enter the same password used during encryption.
-![Step 4](../../../assets/screenshots/week-02/Step4.png)
-
-### Step 5 — Verify Integrity of Decrypted File
-diff labs/02-week-02-cryptography-fundamentals/submissions/encrypted/plaintext.txt \
-     labs/02-week-02-cryptography-fundamentals/submissions/encrypted/plaintext.decrypted.txt
-
-If no output appears, the files are identical.
-![Step 5](../../../assets/screenshots/week-02/Step5.png)
-
-## Part 3 — Observations
-Document the following in your Week 2 lab notes:
-- Why the encrypted file is unreadable
-- What would happen if the wrong password were used
-- What security property symmetric encryption provides
-- Why TLS uses symmetric encryption for data transfer
-
-### Submission (Portfolio Repo)
-Ensure the following files exist:
-
-labs/02-week-02-cryptography-fundamentals/submissions/encrypted/
-  plaintext.txt
-  plaintext.txt.enc
-  plaintext.decrypted.txt
-
-Commit and push your changes.
-
-Do NOT commit any passwords.
-
-## Stretch (Optional)
-Try decrypting the file using an incorrect password.
-
-What error message do you receive?
-Why does decryption fail?
-
-> bad decrypt
-B4450000:error:1C800064:Provider routines:ossl_cipher_unpadblock:bad decrypt:...
-
-> If the wrong password is entered, decryption won’t work and OpenSSL shows an error, because the key doesn’t match and the file cannot be opened.
-
-
+5. Verified that the decrypted file matched the original plaintext file using the diff command, confirming that no changes occurred during encryption and decryption.
+ 
+---
+ 
+## Results
+Include the important outputs or findings from the lab.
+ 
+Examples may include:
+ 
+- command outputs
+- certificate fields
+- verification results
+- screenshots (if applicable)
+ 
+If you include screenshots, store them in the **assets folder** and reference them here.
+ 
+Example:
+ 
+![Certificate Output](assets/certificate-output.png)
+ 
+---
+ 
+## Key Findings
+Document the most important observations from the lab.
+ 
+Examples:
+ 
+- Certificate issuer
+- Public key algorithm used
+- Certificate extensions present
+- Trust chain relationships
+- Validation results
+ 
+•
+•
+•
+ 
+---
+ 
+## Explanation
+Explain **why the results matter**.
+ 
+Examples:
+ 
+- Why the issuer is important in PKI
+- Why SAN is required for modern TLS validation
+- Why the certificate chain validates successfully
+- Why a misconfiguration would cause a failure
+ 
+---
+ 
+## Challenges / Troubleshooting
+Document any issues encountered during the lab and how you resolved them.
+ 
+Examples:
+ 
+- command errors
+- missing intermediate certificates
+- verification failures
+ 
+---
+ 
+## Artifacts
+List the files generated during this lab.
+ 
+Examples:
+ 
+- leaf_cert.pem
+- server.pem
+- intermediate.pem
+- root.pem
+- screenshots stored in assets/
+ 
+---
+ 
 CVI PKI Career Pathway — Foundations Phase
-
-
