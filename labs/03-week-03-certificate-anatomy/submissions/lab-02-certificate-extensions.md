@@ -43,4 +43,4 @@ Paste the value from your output:
 2. What is this certificate authorized to do based on Key Usage? It used for digital signatures and key encipherment.
 3. What does the EKU field tell you about this certificate's purpose? It tells us the certificate is specifically used for TLS web server and client authentication.
 4. Is this a CA certificate? How can you tell? No, because it says CA:FALSE, which means it cannot sign other certificates.
-5. Why does SAN matter more than the Subject CN field in modern TLS? Because modern TLS uses the SAN field to verify domain names, while the Subject CN is no longer relied on.
+5. Why does SAN matter more than the Subject CN field in modern TLS? Modern TLS uses the SAN field to verify domain names, and the CN is no longer relied on for that. The SAN field can list multiple domains and subdomains, while the CN only supports one, which makes it more limited. Because of that, SAN became the standard for hostname validation.
