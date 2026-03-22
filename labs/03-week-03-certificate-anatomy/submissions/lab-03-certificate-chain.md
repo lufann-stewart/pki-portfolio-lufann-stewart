@@ -3,7 +3,10 @@
 
 ## Overview
 Briefly describe what this lab was about in your own words.
+  >This lab was about observing the certificate chain and identifying each certificate by looking at key fields. It also focused on understanding whether the chain is valid or broken, and if it’s broken, why.
+  
 What PKI concept were you investigating?
+  >The certificate chain and the differences between the root, intermediate, and server certificates.
 
 ---
 
