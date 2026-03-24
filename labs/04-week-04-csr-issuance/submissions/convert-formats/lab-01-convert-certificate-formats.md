@@ -24,13 +24,20 @@ Summarize the key steps you performed. Do not copy the lab instructions — desc
 
 ## Results
 - What did the PEM file look like compared to the DER file?
-  >The PEM file was readable. It began with `-----BEGIN CERTIFICATE-----` and ended with `-----END CERTIFICATE-----`.
-- What happened when you opened the .der file in a text editor?
-  >The DER file was not readable and appeared as garbled characters.
-- What did the diff output show after converting PEM → DER → PEM?
-  >FC: no differences encountered
-- What information was displayed when you verified the PFX?
-  >This output shows the encrypted private key (Shrouded Keybag) and certificate information. The actual private key is not displayed.
+  >The PEM file was readable. It began with `-----BEGIN CERTIFICATE-----` and ended with `-----END CERTIFICATE-----`.    
+![PEM File](../../assets/screenshots/week-04/R1.png)
+  
+- What happened when you opened the .der file in a text editor?  
+  >The DER file was not readable and appeared as garbled characters.    
+![DER File](../../assets/screenshots/week-04/R2.png)
+ 
+- What did the diff output show after converting PEM → DER → PEM?    
+  >FC: no differences encountered.  
+![FC File](../../assets/screenshots/week-04/R3.png)
+  
+- What information was displayed when you verified the PFX?  
+  >This output shows the encrypted private key (Shrouded Keybag) and certificate information. The actual private key is not displayed.  
+![PFX File](../../assets/screenshots/week-04/R4.png)
 
 ## Key Findings
 
