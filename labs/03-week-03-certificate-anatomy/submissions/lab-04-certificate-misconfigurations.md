@@ -13,7 +13,7 @@ What PKI concept were you investigating?
 ## Scenario 1 — Missing Subject Alternative Name
 
 **Would modern browsers trust this certificate?**
-  >Yes, because it lists the SANs.
+  >No.
 
 **Analysis:**
 [Explain why SAN is required, why CN is not sufficient, and what error users would see] 
