@@ -16,7 +16,19 @@ What PKI concept were you investigating?
 - OpenSSL version (`openssl version`): OpenSSL 3.6.1 
 
 ---
+## Steps Performed
+Summarize the key steps you performed. Do not copy the lab instructions — describe what you actually did.
 
+1. Used openssl s_client -connect google.com:443 -showcerts to get the certificate for T-mobile.
+2. Copied the leaf cert and pasted in notepad and saved as leaf_cert.pem and then used a command openssl x509 -in leaf_cert.pem -text -noout in open ssl to view the leaf cert in readble format
+3. Verified the PEM and DER versions using `openssl x509 -text -noout` to inspect certificate details.
+4. Converted the DER file back to PEM format (`leaf_cert_restored.pem`) to ensure integrity.
+5. Used the Windows `fc` command to compare the original PEM file and the restored PEM file.
+6. Generated a new RSA private key (`test_key.pem`) for lab testing.
+7. Created a self-signed certificate (`test_cert.pem`) using the newly generated private key.
+8. Bundled the test certificate and private key into a PFX file (`test_bundle.pfx`) with a password using OpenSSL.
+9. Verified the contents of the PFX file with `openssl pkcs12 -info -noout`, confirming the presence of the certificate and encrypted private key.
+---
 ## Certificate Fields
 
 | Field                | Value from your output |
@@ -39,3 +51,7 @@ What PKI concept were you investigating?
 3. When does it expire? Feb 8, 2027 23:59:59 GMT
 4. What public key algorithm is used? rsaEncryption (2048 bit)
 5. Why does the Issuer field matter in a PKI system? Because trust in the issuer equals trust in the certificate; if we trust the issuer, we can trust that the certificate is authentic.
+
+
+## Artifacts
+- leaf_cert.pem
