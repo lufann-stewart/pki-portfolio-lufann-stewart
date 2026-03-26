@@ -3,7 +3,7 @@
  
 ## Overview
 Briefly describe the purpose of this lab in your own words.
-  >The purpose of this lab was to create, exncryot, decrypt and inspect the decrypted file to see if there were and changes made to the file.
+  >The purpose of this lab was to create, encrypt, decrypt and inspect the decrypted file to see if there were any changes.
 
 What PKI concept or system behavior were you investigating?
   >Symmetric Encryption.
@@ -20,11 +20,7 @@ Document the environment used to complete the lab.
 ---
  
 ## Steps Performed
-Summarize the key steps you performed to complete the lab.
  
-Do **not copy the lab instructions**.
-Describe what you actually did.  
-
 *Using commands I:
  
 1. Created the labs directory structure for submissions.
@@ -40,73 +36,51 @@ Describe what you actually did.
 ---
  
 ## Results
-Include the important outputs or findings from the lab.
- 
-Examples may include:
- 
-- command outputs
-- certificate fields
-- verification results
-- screenshots (if applicable)
- 
-If you include screenshots, store them in the **assets folder** and reference them here.
- 
-Example:
- 
-![Certificate Output](assets/certificate-output.png)
+
+•Created plaintext file
+![Plaintext file created](../../../assets/screenshots/week-02/Step2.png)  
+
+•Printed contents of plaintext.txt
+![Contents of plaintext file](../../../assets/screenshots/week-02/Step2A.png)  
+
+•Encrypted file created 
+![Encrypted file created](../../../assets/screenshots/week-02/Step3.png)  
+
+•Opened the encrypted file 
+![Opened encrypted file](../../../assets/screenshots/week-02/Step3A.png)  
+
+•Decrypted file produced  
+![Decrypted file produced](../../../assets/screenshots/week-02/Step4.png)  
+
+•Verification 
+![Verification](../../../assets/screenshots/week-02/Step5.png) 
  
 ---
  
 ## Key Findings
-Document the most important observations from the lab.
  
-Examples:
+>-Encryption and decryption completed successfully.  
+>-File integrity maintained after decryption.  
+>-Windows fc command successfully verified equality.  
  
-- Certificate issuer
-- Public key algorithm used
-- Certificate extensions present
-- Trust chain relationships
-- Validation results
- 
-•
-•
-•
  
 ---
  
-## Explanation
-Explain **why the results matter**.
- 
-Examples:
- 
-- Why the issuer is important in PKI
-- Why SAN is required for modern TLS validation
-- Why the certificate chain validates successfully
-- Why a misconfiguration would cause a failure
+## Explanation  
+
+>The encryption and decryption processes were completed successfully, and verification confirmed that the decrypted file exactly matches the original. This demonstrates the integrity of symmetric encryption and that the data is not altered during the process.
  
 ---
  
 ## Challenges / Troubleshooting
-Document any issues encountered during the lab and how you resolved them.
+ >The lab instructions used diff to compare files, but since I’m on Windows, I used the fc command instead, which successfully verified the files were identical.
  
-Examples:
- 
-- command errors
-- missing intermediate certificates
-- verification failures
  
 ---
  
 ## Artifacts
-List the files generated during this lab.
- 
-Examples:
- 
-- leaf_cert.pem
-- server.pem
-- intermediate.pem
-- root.pem
-- screenshots stored in assets/
+
+plaintext.txt, plaintext.txt.enc, plaintext.decrypted.txt, Step2.png, Step2A.png, Step3.png, Step3A.png, Step4.png, Step5.png
  
 ---
  
