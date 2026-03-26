@@ -69,8 +69,7 @@ Explain **why the results matter**.
 ---
 
 ## Challenges / Troubleshooting
-> I did not run into any issues while doing this lab.
-
+>I did not encounter any significant issues while completing this lab. Because I am working in a Windows environment, I had to adjust some of the OpenSSL commands to ensure they executed correctly.
 
 ---
 
@@ -127,5 +126,4 @@ Paste the value from your output:
 ---
 
 ## Artifacts
-- leaf_cert.pem, leaf_cert.der, leaf_cert_restored.pem, test_cert.pem, test_bundle.pfx
-leaf_cert.pem
+- leaf_cert.pem, W3L1.png, W3L2.png, W3L3.png, W3L4.png, W3L11.png,  
