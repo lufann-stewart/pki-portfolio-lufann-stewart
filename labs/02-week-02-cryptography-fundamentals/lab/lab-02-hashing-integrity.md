@@ -1,48 +1,50 @@
 # Lab — Hashing & Integrity
 
-## Goal
+## Overview
+Briefly describe the purpose of this lab in your own words.
+  >The purpose of this lab was to create a file, generate its SHA-256 hash, modify the file, and then generate a new hash to see how even small changes completely alter the hash. This demonstrates the security property of integrity.
 
-This lab builds operational understanding of cryptographic hashing and the security property of integrity.
+What PKI concept or system behavior were you investigating?
+  >Cryptographic hashing and file integrity.
+---
 
-You will:
+## Steps Performed
 
-- Generate a SHA-256 hash of a file
-- Modify the file
-- Generate a new hash
-- Observe how even small changes completely alter the hash value
+1. Created a directory to store the lab artifacts.
+2. Created a plaintext test file named message.txt with the content: "Week 2 Hashing Lab - CVI".
+3. Generated a SHA-256 hash of the file and saved it as message.sha256.txt.
+4. Opened the hash file to verify: fixed-length hexadecimal output and algorithm used.
+5. Modified message.txt by appending "tampered" to simulate file tampering.
+6. Generated a new SHA-256 hash and saved it as message_tampered.sha256.txt.
+7. Compared the original and tampered hashes to observe that they are completely different, confirming that even small changes alter the hash.
 
 ---
 
-## Part 1 — Setup
+## Results
+Include the important outputs or findings from the lab.
 
-### Prerequisites
 
-- OpenSSL installed
-- Access to a local terminal
-- Week 2 portfolio folder created
 
-All commands must be executed locally.
 
----
 
-## Part 2 — Execution Steps
-
-### Step 1 — Create Artifact Directory
-
-From the root of your repository:
+Created Artifact Directory
 
 mkdir -p labs/02-week-02-cryptography-fundamentals/submissions/hashes
 ![Lab2 Step1](../../../assets/screenshots/week-02/Lab2Step1.png)
 ![Lab2 Step1A](../../../assets/screenshots/week-02/Lab2Step1A.png)
+Folder structure for storing lab files was successfully created.
 
-### Step 2 — Create a Test File
+Verified Directory Structure
 echo "Week 2 Hashing Lab - CVI" > labs/02-week-02-cryptography-fundamentals/submissions/hashes/message.txt
+Confirmed that the hashes folder exists and is ready for files.
 
 Open the file and confirm it is readable.
 ![Lab2 Step2](../../../assets/screenshots/week-02/Lab2Step2.png)
+Created Test File (message.txt)
 
-### Step 3 — Generate a SHA-256 Hash
+The plaintext file was created and contains the expected content: "Week 2 Hashing Lab - CVI".
 openssl dgst -sha256 labs/02-week-02-cryptography-fundamentals/submissions/hashes/message.txt > labs/02-week-02-cryptography-fundamentals/submissions/hashes/message.sha256.txt
+The SHA-256 hash of the file was generated, showing a fixed-length hexadecimal string.
 
 Open the hash file and observe:
 - A fixed-length output
