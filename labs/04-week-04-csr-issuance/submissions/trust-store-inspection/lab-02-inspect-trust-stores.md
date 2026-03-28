@@ -11,37 +11,41 @@ Briefly describe what this lab was about in your own words. What PKI concept or 
 
 ## Steps Performed
 ### To view and retrieve certification details:
-1. Went to certmgr on my local machine > Trusted Root Certification Authorities > Certificates
-2. Viewed the details of the certificates I chose to examine (DigiCert Global Root G3 and Microsoft RSA Root Certificate Authority 2017) using the Details, General, and Certification Path tabs
+  >1. Went to certmgr on my local machine > Trusted Root Certification Authorities > Certificates.
+  >2. Viewed the details of the certificates I chose to examine (DigiCert Global Root G3 and Microsoft RSA Root Certificate Authority 2017) using the Details, General, and Certification Path tabs.
 
 ### To verify root certificates for Google:
-4. Ran `openssl s_client -connect google.com:443 -verify_return_error` and received verify error:num=20:unable to get local issuer certificate
-5. Downloaded the root and intermediate certificate bundle for GlobalSign Root CA, saved it as bundle.pem on my machine
-6. Ran `openssl s_client -connect google.com:443 -CAfile bundle.pem -verify_return_error` and received Verify return code: 0 (ok)
+  >1. Ran `openssl s_client -connect google.com:443 -verify_return_error` and received verify error:num=20:unable to get local issuer certificate.
+  >2. Downloaded the root and intermediate certificate bundle for GlobalSign Root CA, saved it as bundle.pem on my machine.
+  >3. Ran `openssl s_client -connect google.com:443 -CAfile bundle.pem -verify_return_error` and received Verify return code: 0 (ok).
 
 ## Results
 - How many trusted root CAs did you find on your system?
   >67
 - Name at least one specific root CA you inspected. Include its Subject and expiration date.
   
- > **DigiCert Global Root G3**  
-> **Subject:** DigiCert Global Root G3  
-> **Issuer:** DigiCert Global Root G3  
-> **Valid From / Valid To:** ‎Thursday, ‎August ‎1, ‎2013 8:00:00 AM until Thursday, ‎Friday, ‎January ‎15, ‎2038 8:00:00 AM
-> **Public Key Algorithm:** ECC (384 bits)
+  > **DigiCert Global Root G3**  
+  > **Subject:** DigiCert Global Root G3  
+  > **Issuer:** DigiCert Global Root G3  
+  > **Valid From / Valid To:** ‎Thursday, ‎August ‎1, ‎2013 8:00:00 AM until Thursday, ‎Friday, ‎January ‎15, ‎2038 8:00:00 AM
+  > **Public Key Algorithm:** ECC (384 bits)
 
-> **Microsoft RSA Root Certificate Authority 2017**  
-> **Subject:** Microsoft RSA Root Certificate Authority 2017  
-> **Issuer:** Microsoft RSA Root Certificate Authority 2017  
-> **Valid From / Valid To:** Wednesday, December 18, 2019 6:51:22 PM until Friday, July 18, 2042 7:00:23 PM  
-> **Public Key Algorithm:** RSA (4096 bits)
+  > **Microsoft RSA Root Certificate Authority 2017**  
+  > **Subject:** Microsoft RSA Root Certificate Authority 2017  
+  > **Issuer:** Microsoft RSA Root Certificate Authority 2017  
+  > **Valid From / Valid To:** Wednesday, December 18, 2019 6:51:22 PM until Friday, July 18, 2042 7:00:23 PM  
+  > **Public Key Algorithm:** RSA (4096 bits)
+
+![Description](../../../../assets/screenshots/week-04/W4Lab2B.png)
+![Description](../../../../assets/screenshots/week-04/W4Lab2D.png)
+
   
 - What did the verify return code output tell you?
  >The return code showed all the Common Names (CNs) listed in the machine's certificate store.
 
   - List of inspected root CAs (first few shown; click to expand full list):
 
-Issuer: CN=Microsoft Root Certificate Authority, DC=microsoft, DC=com  
+  >Issuer: CN=Microsoft Root Certificate Authority, DC=microsoft, DC=com  
 Subject: CN=Microsoft Root Certificate Authority, DC=microsoft, DC=com  
 Issuer: CN=Thawte Timestamping CA, OU=Thawte Certification, O=Thawte, L=Durbanville, S=Western Cape, C=ZA  
 Subject: CN=Thawte Timestamping CA, OU=Thawte Certification, O=Thawte, L=Durbanville, S=Western Cape, C=ZA  
@@ -72,26 +76,17 @@ Subject: CN=Microsoft Time Stamp Root Certificate Authority 2014, O=Microsoft Co
 
 ## Key Findings
 
-* Some certificates are expired but still show up in the store. For example, the certificate status for Microsoft Root Authority 2017 says "This certificate has expired or is not yet valid."
+> Some certificates are expired but still show up in the store. For example, the certificate status for Microsoft Root Authority 2017 says "This certificate has expired or is not yet valid."
 
-* I looked at DigiCert Global Root G3 and Microsoft Root Authority 2017 to compare.  
+> My research confirmed that DigiCert is a larger, more general CA with more purposes, while Microsoft Root Authority 2017 is specifically for Microsoft's ecosystem and mainly trusted on Windows systems.
 
-  **DigiCert Global Root G3 purposes:**  
-  - Proves your identity to a remote computer  
-  - Ensures software came from the publisher  
-  - Protects software from being altered after publication  
-  - Protects email messages  
-  - Ensures identity of a remote computer  
-  - Allows data to be signed with the current time  
+> The DigiCert certificate has more intended purposes, like verifying software and email, while Microsoft Root Authority 2017 is simpler. This shows that different root CAs have different roles.  
 
-  **Microsoft Root Authority 2017 purposes:**  
-  - Proves your identity to a remote computer  
-  - Ensures the identity of a remote computer  
-  - All issuance policies  
 
-* The DigiCert certificate has more intended purposes, like verifying software and email, while Microsoft Root Authority 2017 is simpler. This shows that different root CAs have different roles.  
 
-* I picked DigiCert because I’d examined its details before, then compared it to Microsoft Root Authority 2017, which I hadn’t examined. This helped me identify the differences between a large general CA and a Microsoft-specific one. My research confirmed that DigiCert is a larger, more general CA with more purposes, while Microsoft Root Authority 2017 is specifically for Microsoft's ecosystem and mainly trusted on Windows systems. 
+![Description](../../../../assets/screenshots/week-04/W4Lab2A.png)
+![Description](../../../../assets/screenshots/week-04/W4Lab2C.png)
+
 
 ## Explanation
 - Why does your browser trust a certificate from a website you have never visited before?
@@ -104,23 +99,38 @@ Subject: CN=Microsoft Time Stamp Root Certificate Authority 2014, O=Microsoft Co
   >I was surprised by how many root CAs come pre-installed. I didn't expect a single machine to have that many trusted roots already built in.
 
 ## Challenges / Troubleshooting
-I tried getting the Root CA 2 ways:
 
-  >While running `openssl s_client -connect google.com:443 -verify_return_error`, I got an error: verify error:num=20:unable to get local issuer certificate. This meant OpenSSL couldn't find the root CA (GlobalSign Root CA) in my trust store.
+1. While running:
+`openssl s_client -connect google.com:443 -verify_return_error`
 
-I first tried exporting the GlobalSign Root CA from my local machine trust store (certlm) and importing it into Trusted Root Certification Authorities in certmgr, but running the command again still gave me code 20.
+I received:
+verify error:num=20:unable to get local issuer certificate
 
-I ran a command openssl x509 -inform DER -in GlobalSignRoot.cer -out GlobalSignRoot.pem
-openssl s_client -connect google.com:443 -CAfile GlobalSignRoot.pem -verify_return_error and received 
+This indicated OpenSSL could not locate the root CA (GlobalSign Root CA) in its trust store.
 
-Then I went to the GlobalSign support page, downloaded the root and intermediate certificate bundle, saved it as bundle.pem, and reran the command with the CAfile switch:
+I first tried exporting the GlobalSign Root CA from certlm and importing it into Trusted Root Certification Authorities in certmgr, but rerunning the command still returned code 20.
+
+Next, I converted the certificate from DER to PEM format:
+`openssl x509 -inform DER -in GlobalSignRoot.cer -out GlobalSignRoot.pem`
+
+Then I ran:
+`openssl s_client -connect google.com:443 -CAfile GlobalSignRoot.pem -verify_return_error`  
+![Description](../../../../assets/screenshots/week-04/WKLab2ver6.png)
+
+At first, I thought this also failed because I saw error messages at the end of the output. After reviewing it more carefully, I realized it actually returned:
+Verify return code: 0 (ok)
+
+The messages I saw were related to how the connection closed, not certificate verification.
+
+To ensure I had the full chain, I also downloaded the root and intermediate certificate bundle from the GlobalSign support page, saved it as bundle.pem, and verified again using:
 `openssl s_client -connect google.com:443 -CAfile bundle.pem -verify_return_error`
 
-This time it worked — returned code 0, which meant successful verification.
+This also returned code 0, confirming successful verification.
 
-I remembered from feedback on a previous lab that when a certificate was missing, using the -CAfile switch to point to a file with the certificate PEM info fixed it. I applied that same logic here when I hit this issue, and it worked.
+From this, I learned that OpenSSL requires certificates in PEM format and that output must be read carefully, since not all “errors” indicate a failure in verification. I remembered from feedback on a previous lab that when a certificate was missing, I needed to use a switch to pass or reference the certificate file so OpenSSL could verify it. I applied that logic here with the -CAfile switch and the root/intermediate bundle, which finally let the verification succeed.
 
-While attempting to screenshot the certification information from certmgr, I ran into trouble with Print Screen not working. I learned that Windows has a security control that prevents Print Screen from capturing certain sensitive areas like Certificate Manager. I had to use Windows + Shift + S instead to override the security restriction and take the screenshots.
+2.Additionally, when attempting to capture screenshots of certificate details, Print Screen did not work. I learned Windows restricts screenshots in certain secure views like certmgr, so I used Windows + Shift + S instead.
+
 
 ## Artifacts
-- root_cas.pem (macOS) or equivalent, screenshots stored in assets/screenshots/week-04/
+- bundle.pem, GlobalSignRoot.cer, GlobalSignRoot.pem, W4Lab2A.png, W4Lab2B.png, W4Lab2C.png, W4Lab2D.png, WKLab2ver6.png
