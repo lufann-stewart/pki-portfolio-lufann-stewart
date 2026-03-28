@@ -20,19 +20,19 @@ Briefly describe what this lab was about in your own words. What PKI concept or 
 ## Results
 - What did the certificate output show when you verified test-root-ca.crt?  
   >The certificate details including, the subject, issuer, validity period
-  ![Certification Output](../../../assets/screenshots/week-04/1.png)
+  ![Certification Output](../../../../assets/screenshots/week-04/1.png)
   
 - What did the verify output return after signing — before and after cleanup?
   >Before Cleanup labs/week-04/submissions/install-validate/test-signed.crt: OK: 
-  ![Verification Output](../../../assets/screenshots/week-04/2.png)
-  >![Verification Output](../../../assets/screenshots/week-04/4.png)
+  ![Verification Output](../../../../assets/screenshots/week-04/2.png)
+  >![Verification Output](../../../../assets/screenshots/week-04/4.png)
   
   >After Cleanup: Cert was gone from the Windows trust store and no longer appeared in certmgr.
-  ![After Cleanup](../../../assets/screenshots/week-04/3.png)
+  ![After Cleanup](../../../../assets/screenshots/week-04/3.png)
   
 - What confirmed the trust chain was established?
   >The trust chain was established when openssl verify -CAfile test-root-ca.crt test-signed.crt returned OK. This confirmed that the signed certificate's issuer matched the test root CA, and the chain validated successfully from the signed cert back to the trusted root.
- Screenshot placholder 2.png
+
   
 ## Key Findings
 
