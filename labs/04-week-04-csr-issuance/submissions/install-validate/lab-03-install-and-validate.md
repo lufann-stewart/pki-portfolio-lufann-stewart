@@ -2,7 +2,7 @@
 
 ## Overview
 Briefly describe what this lab was about in your own words. What PKI concept or system behavior were you investigating?
-  >In this lab, I worked through the full certificate process in a PKI setup. I created a self-signed root CA, added it to my Windows trust store, then made a certificate signed by that CA. I checked that the signed certificate properly chained back to the root, and finally removed the test CA to see how it affected trust validation. The goal was to get hands-on with certificate trust, how chains work, and what happens when a root CA is added or removed.
+  >In this lab, I generated a self-signed root CA, installed it into my Windows trust store, and then verified that a certificate signed by that CA was trusted. I checked the trust chain and finally removed the root CA to see how it affected trust validation.
 
 
 ## Environment
@@ -12,18 +12,18 @@ Briefly describe what this lab was about in your own words. What PKI concept or 
 
 ## Steps Performed
   >1. Created a directory to store the lab artifacts.
-  >2. Generated a self-signed root CA and installed it into the Windows trust store.
-  >3. Created a certificate signed by that root CA.
-  >4. Verified that the signed certificate chained correctly to the root CA.
+  >2. Generated a self-signed root CA using OpenSSL and installed it into the Windows trust store via PowerShell.
+  >3. Verified that the certificate signed by the root CA was recognized as valid.
+  >4. Confirmed that the trust chain correctly led back to the root CA.
   >5. Removed the test root CA and observed that trust validation for the signed certificate failed, confirming the removal effect.
 
 ## Results
 - What did the certificate output show when you verified test-root-ca.crt?  
-  >The certificate details including, the subject, issuer, validity period
+  >The certificate details including the subject, issuer, and validity period.
   ![Certification Output](../../../../assets/screenshots/week-04/1.png)
   
 - What did the verify output return after signing — before and after cleanup?
-  >Before Cleanup labs/week-04/submissions/install-validate/test-signed.crt: OK: 
+  >Before Cleanup labs/week-04/submissions/install-validate/test-signed.crt: OK 
   ![Verification Output](../../../../assets/screenshots/week-04/2.png)
   >![Verification Output](../../../../assets/screenshots/week-04/4.png)
   
@@ -36,9 +36,11 @@ Briefly describe what this lab was about in your own words. What PKI concept or 
   
 ## Key Findings
 
-  >The test root CA was self-signed because the Issuer and Subject were the same — both said CN=CVI-Lab-Root-CA, O=CyberVisionaries Institute, C=US. That's what makes it self-signed.
-
-  >After I installed the root CA into my Windows trust store, certificates signed by it became trusted. When I ran the verify command, it returned OK, which meant the trust chain worked and the signed certificate validated back to the root.
+  >The root CA was installed using PowerShell with the command:
+  `Import-Certificate \
+  -FilePath "labs\week-04\submissions\install-validate\test-root-ca.crt" \
+  -CertStoreLocation Cert:\LocalMachine\Root`.
+  This installs the certificate to the local machine trusted root store (certlm.msc). The screenshot shows the certificate in the current user store (certmgr.msc) for reference, but the certificate was actually installed in the local machine trusted root store (certlm.msc) as specified in the command.
 
   >When I removed the root CA from the Windows trust store, it disappeared from certmgr completely. That showed me that deleting the root CA immediately breaks the trust for any certificates it signed.  
 
@@ -46,7 +48,7 @@ Briefly describe what this lab was about in your own words. What PKI concept or 
 
 ## Explanation
 - What made the test root CA self-signed? How did you identify that in the output?
-  >A certificate is self-signed when the Issuer and Subject are the same. In my test root CA output, the Issuer and Subject both say CN=CVI-Lab-Root-CA, O=CyberVisionaries Institute, C=US, which means the certificate signed itself. That's how I identified it as self-signed — the certificate authority that issued it is the same as the certificate itself.
+  >The test root CA was self-signed because its Issuer and Subject were identical (CN=CVI-Lab-Root-CA, O=CyberVisionaries Institute, C=US) and it had Basic Constraints: CA:TRUE, confirming it could act as a certificate authority.
   
 - What changed on your system after you installed the root CA?
   >Before I installed the root CA, my system didn't trust certificates signed by it. After I imported the root CA into the Windows trust store using PowerShell and OpenSSL, my system started trusting it. Then when I ran openssl verify -CAfile test-root-ca.crt test-signed.crt, it returned OK, which meant the verification worked.
