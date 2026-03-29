@@ -2,7 +2,7 @@
 
 ## Overview
 Briefly describe what this lab was about in your own words. What PKI concept or system behavior were you investigating?
-  >This lab was about analyzing the differences between PEM, DER, and PFX files, understanding their formats, readability, and typical use cases in PKI.
+  >This lab focused on converting certificates between PEM, DER, and PFX formats and seeing how each one behaves. I worked through creating, converting, and verifying certificates to understand how encoding formats affect readability and how certificates and private keys are stored and transferred in a PKI environment.
 
 ## Environment
 - Operating System: Windows  
@@ -28,7 +28,7 @@ Summarize the key steps you performed. Do not copy the lab instructions — desc
 ![PEM File](../../../../assets/screenshots/R1.png)
   
 - What happened when you opened the .der file in a text editor?  
-  >The DER file was not readable and appeared as garbled characters.    
+  >The DER file was not human-readable and appeared as binary/garbled characters.   
 ![DER File](../../../../assets/screenshots/R2.png)
  
 - What did the diff output show after converting PEM → DER → PEM?    
@@ -47,7 +47,7 @@ Summarize the key steps you performed. Do not copy the lab instructions — desc
 
 3. The PFX file contains both the certificate and the private key. The password keeps the key safe, so no one can grab it if the file is sent somewhere.  
 
-4. Each format has its purpose: PEM is easy for humans to read, DER is for systems or servers to use, and PFX is for securely sending the certificate and key to another system.
+4. Each format has its purpose: PEM is human-readable and commonly used in configuration files, DER is a binary format used when applications require non-text encoded certificates, and PFX is used to securely bundle and transfer a certificate with its private key.
 
 
 ## Explanation
@@ -59,7 +59,7 @@ Summarize the key steps you performed. Do not copy the lab instructions — desc
   > Use PEM for human-readable certificates, such as configuration files or Linux servers. Use DER for binary format requirements, often on Windows systems or certain devices. Use PFX when you need to bundle the certificate and private key together, for example, when importing into Windows or a browser.
 
 - Why is it important never to commit private key files to GitHub?  
-  > Because others could gain access to your private key, which they could use to intercept data or impersonate you.
+  >Because exposing a private key allows an attacker to impersonate the certificate owner, decrypt sensitive communications, or perform man-in-the-middle attacks. Once a private key is compromised, the certificate can no longer be trusted.
 
 ## Challenges / Troubleshooting
 
