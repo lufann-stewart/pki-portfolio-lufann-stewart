@@ -35,14 +35,20 @@ Briefly describe what this lab was about in your own words. What PKI concept or 
 - What did the diff output show when you compared the public key in the CSR vs the signed cert? The fc command showed “no differences encountered,” which means the public key from the certificate matches the public key from the private key. This confirms that they form the same key pair.
   
 ## Key Findings
+- After signing the certificate, the issuer information and validity period were added. The CSR alone only contained the subject and public key.  
+- Comparing the public key from the certificate to the one from the private key showed they are identical, confirming the certificate was generated from the correct key pair.  
+- The private key must stay private; if someone else had it, they could impersonate the certificate owner.  
+- Self-signed certificates can be used for internal testing, but for public trust, a certificate should be signed by a trusted CA.
 
 ## Explanation
 - Why must the private key never leave the requestor's machine — even when submitting a CSR to a CA?
-  >It can be usedto get info not intended for someone else, mitm attacks, or someone can impersonate you.
+  >The private key must stay private because it proves your identity. If someone else gets it, they could read information meant only for you, intercept communications (MITM attacks), or impersonate you to create certificates or sign data.
+  
 - What is the difference between a CSR and a signed certificate?
--   > a CSR is a request to get s singature on a cert and a signed certificate is after the request has been fulfilled.
+   >A CSR is a request to get a signature on a cert and a signed certificate is after the request has been fulfilled.
+    
 - In what real-world scenario would self-signing be appropriate vs submitting to a trusted CA?
-  >maybe when creating your own internal network?
+  >A self-signed certificate is appropriate for internal networks, testing, or lab environments where public trust isn’t required.
 
 ## Challenges / Troubleshooting
 >No challenges during this lab.
