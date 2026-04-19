@@ -16,13 +16,13 @@ Work through all four steps. For each, document what you checked and what it rul
   >Ran `openssl s_client -connect ehr.metrogeneral.org:443 -servername ehr.metrogeneral.org -showcerts` to pull the server certificate and view what was being presented.
 
 **Step 2 — Parse:**
-  >Parsed certrificate fields using command: `openssl x509 -in cert.pem -text -noout`. This step confirmed the certificate was not expired and allowed for identification of any hostname mismatch issues.
+  >Used openssl x509 -in cert.pem -text -noout to parse the certificate. Checked that the certificate wasn't expired and that the hostname matched. Since the renewal was a full key replacement, I looked at the public key field to confirm a new key was actually used. The Issuer field showed the internal Metro General CA — which is the key detail here, because any device that doesn't have that CA root trusted is going to reject the certificate even if everything else is fine.
 
 **Step 3 — Validate the Chain:**
-  >Ran `openssl verify -CAfile ca-bundle.pem leaf.pem` to check if the certificate chain would validate against the trusted CA bundle. This helped confirm whether trust distribution was working correctly. This ruled out certificate chain and CA validation issues.
+  >Ran openssl verify -CAfile ca-bundle.pem leaf.pem to test chain validation. The biggest clue in this whole scenario is that office devices work and clinical devices don't — same certificate, same server, different result. That can only mean the problem is on the client side. The CA root was pushed via Group Policy six months ago, but the clinical subnet was added two weeks ago, so those devices never got it. This rules out the certificate and chain being the problem — it's a trust store gap on the clinical devices.
 
 **Step 4 — Check Revocation and Trust:**
-  >Checked OCSP information using `openssl x509 -in cert.pem -text -noout | grep -A1 "OCSP"`. No OCSP responder URL was found, and there were no indications that the certificate was revoked, so revocation was not contributing to the failure.
+  >Checked for OCSP info using openssl x509 -in cert.pem -text -noout | grep -A1 OCSP. Since this was a full certificate and key replacement, the old certificate is still technically valid until it expires — which means it should be revoked so nobody can use it. That's not what's causing the current failure, but it's still something that needs to be handled. You'd verify revocation status by checking the OCSP responder or CRL listed in the old certificate.
 
 ## Findings — In Diagnostic Order
 

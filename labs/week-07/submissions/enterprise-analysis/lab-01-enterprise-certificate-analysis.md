@@ -28,7 +28,7 @@ Briefly describe what this lab was about in your own words. What were you analyz
 - Approximate remaining validity (days):
     >62 days  
 - Certificate type (DV / OV / EV — and how you determined this):
-    >Likely OV, not DV. It’s not 100% confirmed from the certificate alone, but given this is a large enterprise platform using a commercial CA, OV is the more reasonable assumption. DV is typically used for simpler or automated setups, which doesn’t really match here.
+    >Likely DV. The certificate does not include extended organization details typically associated with EV certificates, and there is no clear indication of organization validation fields beyond the domain. Modern enterprise environments often use DV certificates issued through automated infrastructure, even at large scale.
 - Number of SAN entries:
     >2
 - Wildcard entries present? If yes, list them and describe what they suggest about the architecture:
@@ -85,7 +85,7 @@ Briefly describe what this lab was about in your own words. What were you analyz
 ## Architecture Assessment
  
 In 2–3 sentences, describe what this certificate deployment tells you about the organization's PKI architecture and operational approach. This is not a grade — it is an observation. Write it the way a PKI engineer would write it in a pre-migration audit.
-  >This appears to be a large-scale enterprise public TLS deployment using multiple commercial Certificate Authorities. The use of different issuers (Amazon, Entrust, DigiCert) suggests a distributed infrastructure spanning cloud services and third-party providers.
+  >This appears to be a large-scale enterprise public TLS deployment using multiple commercial Certificate Authorities. The use of different issuers (Amazon, Entrust, DigiCert) suggests a distributed infrastructure spanning cloud services and third-party providers. The multi-CA approach and short validity periods suggest certificate management is likely automated across different infrastructure teams, which is worth mapping during a pre-migration audit to avoid gaps in renewal coverage
 
   >TLS likely terminates at edge infrastructure such as load balancers or CDN layers, which is typical for modern SaaS environments.
 
