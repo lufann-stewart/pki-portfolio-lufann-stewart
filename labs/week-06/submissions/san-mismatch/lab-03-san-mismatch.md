@@ -20,7 +20,7 @@ Summarize what you checked at each step. Do not copy the lab instructions — de
   >Ran `openssl x509 -in leaf_cert.pem -text -noout` to view the SAN information within the certificate. 
 
 **Step 3 — Validate the Chain:**
-  >I ran `openssl verify -untrusted intermediate.pem leaf_cert.pem` to confirm whether the certificate chain was valid. The chain validation was not the primary issue, as the failure was caused by hostname mismatch rather than trust chain problems.
+  >Ran openssl verify -untrusted intermediate.pem leaf_cert.pem to check the chain independently of the hostname issue. The command failed with error 20 — unable to get local issuer certificate.
 
 **Step 4 — Check Revocation and Trust:**
   >First ran `openssl x509 -in leaf_cert.pem -text -noout | findstr /i OCSP` to check for an OCSP responder URL. No OCSP URL was returned. I then reviewed the full certificate with `openssl x509 -in leaf_cert.pem -text -noout` to double-check and confirm OCSP information was not present.
@@ -64,4 +64,4 @@ Explain clearly — in terms a non-technical manager could follow — why adding
 
 ## Artifacts
 
-- No certificate files required for this lab
+- mismatch_cert.pem
