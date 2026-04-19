@@ -19,7 +19,9 @@ Summarize what you checked at each step. Do not copy the lab instructions — de
   >Ran `openssl x509 -in leaf.pem -text -noout` to view the certificate details in a readable format. Confirmed the certificate was expired based on the Not After: Apr 12 23:59:59 2015 GMT date. Also identified the subject as `*.badssl.com` and issuer as COMODO RSA Domain Validation Secure Server CA.
 
 **Step 3 — Validate the Chain:**
-  >Ran `openssl verify -untrusted intermediate.pem leaf.pem` but initially did not have the intermediate certificate available, resulting in an “unable to get local issuer certificate” error. After retrieving the full chain using `openssl s_client -connect expired.badssl.com:443 -showcerts`, validation issues were still observed due to the certificate being expired. The primary cause of failure was not the chain, but the expired certificate.
+  >I ran openssl s_client -connect expired.badssl.com:443 -showcerts to retrieve the full certificate chain. There were 3 certificates in the output (leaf, intermediate, and root), showing the chain was structurally complete. An intermediate CA was present, and the chain correctly terminated at a trusted root.
+
+  >There were no missing certificates in the chain itself. The only validation failure shown was that the certificate had expired, with a verify return code: 10 (certificate has expired). I also saw a local issuer warning (unable to get local issuer certificate), but that did not reflect a missing server chain—just a local validation issue. The main issue was clearly the expired certificate, not a broken chain.
 
 **Step 4 — Check Revocation and Trust:**
   >Ran `openssl x509 -in leaf.pem -text -noout` to check revocation-related fields. Found the OCSP responder URL `http://ocsp.comodoca.com` and CA Issuers URL `http://crt.comodoca.com/COMODORSADomainValidationSecureServerCA.crt`. No OCSP validation was performed, and revocation was not the cause of the failure.
