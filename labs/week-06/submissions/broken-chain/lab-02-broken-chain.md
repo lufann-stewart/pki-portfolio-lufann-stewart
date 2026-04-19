@@ -19,12 +19,15 @@ Summarize what you checked at each step. Do not copy the lab instructions — de
   >Ran command `openssl x509 -in leaf_cert.pem -text -noout` to parse and display the certificate details.
 
 **Step 3 — Validate the Chain:**
-  >I checked if the certificate chain could be validated using `openssl verify leaf_cert.pem`, but it failed because the chain could not be built. I then retried using `openssl verify -untrusted issuer_cert.pem leaf_cert.pem`, but it still failed, confirming the intermediate certificate was missing.
+  >Ran openssl verify leaf_cert.pem and got error 20 — the intermediate was missing from the chain. Downloaded the R13 intermediate from Let's Encrypt using curl -s http://r13.i.lencr.org/ -o intermediate.der and converted it to PEM with openssl x509 -inform DER -in intermediate.der -out issuer_cert.pem. Used -CAfile to point to the Git Bash CA bundle since the Let's Encrypt root wasn't in my local Windows trust store, and the final verify returned leaf_cert.pem: OK.
 
 **Step 4 — Check Revocation and Trust:**
   >I checked the certificate for revocation information using `openssl x509 -in leaf_cert.pem -text -noout | findstr OCSP`.
 
   >The certificate did not include an OCSP responder URL. However, this was not the cause of the failure. I also confirmed that the root CA is trusted by the system, so the failure was not due to trust store configuration. The failure was due to an incomplete certificate chain, not revocation or trust problems.
+
+![OCSP check output1](../../../assets/screenshots/Wk6Lab2.png)  
+![OCSP check output1](../../../assets/screenshots/Wk6Lab2A.png)
 
 ## Evidence
 
@@ -46,8 +49,8 @@ Is this a certificate problem or a server configuration problem? Explain the dis
 
 Step-by-step path to resolve this incident:
 
-1. Download the missing intermediate certificate from the CA using: `curl -o issuer_cert.pem http://r13.i.lencr.org/`
-2. Convert the downloaded certificate into PEM format to ensure it could be used by OpenSSL: `openssl x509 -inform der -in issuer_cert.pem -out issuer_cert.pem`  
+1. Download the missing intermediate certificate from the CA using: `curl -o intermediate.der http://r13.i.lencr.org/`
+2. Convert the downloaded certificate into PEM format to ensure it could be used by OpenSSL: `openssl x509 -inform der -in intermediate.der -out issuer_cert.pem`  
 3. Verify the certificate chain locally by supplying the intermediate certificate manually: `openssl verify -untrusted issuer_cert.pem leaf_cert.pem`
 
 ## Key Findings
@@ -64,6 +67,8 @@ Step-by-step path to resolve this incident:
 
   >I became confused from mixing s_client handshake errors with verify validation errors. I initially treated them as separate problems, but both were pointing to the same underlying issue: an incomplete certificate chain due to a missing intermediate.
 
+  >Step 3 gave me more trouble than expected. Even after I supplied the intermediate with -untrusted, the verify still failed with error 20. Turns out OpenSSL also needed the Let's Encrypt root (ISRG Root X1) and it wasn't in my Windows trust store. Once I pointed it to the Git Bash CA bundle using -CAfile it finally went through and I got leaf_cert.pem: OK.
+
 ## Artifacts
 
-- leaf_cert.pem, issuer_cert.pem
+- leaf_cert.pem, issuer_cert.pem, Wk6Lab2.png, Wk6Lab
