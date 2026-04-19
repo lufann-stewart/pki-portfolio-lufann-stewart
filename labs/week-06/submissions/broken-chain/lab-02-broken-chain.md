@@ -26,8 +26,8 @@ Summarize what you checked at each step. Do not copy the lab instructions — de
 
   >The certificate did not include an OCSP responder URL. However, this was not the cause of the failure. I also confirmed that the root CA is trusted by the system, so the failure was not due to trust store configuration. The failure was due to an incomplete certificate chain, not revocation or trust problems.
 
-![OCSP check output1](../../../assets/screenshots/Wk6Lab2.png)  
-![OCSP check output1](../../../assets/screenshots/Wk6Lab2A.png)
+![OCSP check output](../../../../assets/screenshots/week-06/Wk6Lab2.png)  
+![OCSP check output1](../../../../assets/screenshots/week-06/Wk6Lab2A.png)
 
 ## Evidence
 
@@ -69,6 +69,8 @@ Step-by-step path to resolve this incident:
 
   >Step 3 gave me more trouble than expected. Even after I supplied the intermediate with -untrusted, the verify still failed with error 20. Turns out OpenSSL also needed the Let's Encrypt root (ISRG Root X1) and it wasn't in my Windows trust store. Once I pointed it to the Git Bash CA bundle using -CAfile it finally went through and I got leaf_cert.pem: OK.
 
+  >For Step 4, I also spent time trying to confirm whether an OCSP responder URL was present in the certificate. I ran openssl x509 -in leaf_cert.pem -noout -text | findstr /C:"OCSP" /C:"CA Issuers" /C:"CRL" to isolate the relevant fields. The output only returned the CA Issuers URL and a CRL distribution point — no OCSP URL appeared. I checked both the leaf and the intermediate to make sure I wasn't missing it, but confirmed it genuinely isn't present in this certificate. This points to the cert uses CRL for revocation instead of OCSP.
+
 ## Artifacts
 
-- leaf_cert.pem, issuer_cert.pem, Wk6Lab2.png, Wk6Lab
+- leaf_cert.pem, issuer_cert.pem, Wk6Lab2.png, Wk6Lab2A.png
