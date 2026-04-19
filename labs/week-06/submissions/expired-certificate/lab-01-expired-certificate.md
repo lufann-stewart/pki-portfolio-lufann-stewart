@@ -21,7 +21,7 @@ Summarize what you checked at each step. Do not copy the lab instructions — de
 **Step 3 — Validate the Chain:**
   >I ran openssl s_client -connect expired.badssl.com:443 -showcerts to retrieve the full certificate chain. There were 3 certificates in the output (leaf, intermediate, and root), showing the chain was structurally complete. An intermediate CA was present, and the chain correctly terminated at a trusted root.
 
-  >There were no missing certificates in the chain itself. The only validation failure shown was that the certificate had expired, with a verify return code: 10 (certificate has expired). I also saw a local issuer warning (unable to get local issuer certificate), but that did not reflect a missing server chain—just a local validation issue. The main issue was clearly the expired certificate, not a broken chain.
+  >I also saw a local issuer warning (“unable to get local issuer certificate”), which means my system couldn’t fully validate the chain using its trusted CA store. This doesn’t mean the server was missing certificates — the s_client output shows the full chain was still present and complete. The actual failure was the certificate being expired.
 
 **Step 4 — Check Revocation and Trust:**
   >Ran `openssl x509 -in leaf.pem -text -noout` to check revocation-related fields. Found the OCSP responder URL `http://ocsp.comodoca.com` and CA Issuers URL `http://crt.comodoca.com/COMODORSADomainValidationSecureServerCA.crt`. No OCSP validation was performed, and revocation was not the cause of the failure.
@@ -30,7 +30,7 @@ Summarize what you checked at each step. Do not copy the lab instructions — de
 
 - Not Before date: Apr  9 00:00:00 2015 GMT
 - Not After date: Apr 12 23:59:59 2015 GMT
-- Days since expiration: 3,650
+- Days since expiration: 4,012
 - Subject (entity the certificate was issued to): *.badssl.com
 - Issuer: COMODO RSA Domain Validation Secure Server CA
 - Chain status (complete / incomplete): complete 
