@@ -43,7 +43,7 @@ Summarize the key steps you performed. Do not copy the lab instructions — desc
 
 1. Converting PEM → DER → PEM didn’t change the certificate at all. I checked with the `fc` command, and the restored PEM matched the original perfectly.  
 
-2. The DER file is just a bunch of binary characters and isn’t readable by humans, unlike PEM which you can actually open and read.  
+2. DER is a binary encoding format for X.509 certificates and is not human-readable. It is used in systems and protocols that require compact binary representation, including Java-based applications and embedded environments.
 
 3. The PFX file contains both the certificate and the private key. The password keeps the key safe, so no one can grab it if the file is sent somewhere.  
 
@@ -56,7 +56,7 @@ Summarize the key steps you performed. Do not copy the lab instructions — desc
   > A PFX requires a password because it contains the private key. The password ensures confidentiality and prevents unauthorized access if the file is transmitted or stored.
 
 - In what real-world scenario would you choose PEM vs DER vs PFX?  
-  > Use PEM for human-readable certificates, such as configuration files or Linux servers. Use DER for binary format requirements, often on Windows systems or certain devices. Use PFX when you need to bundle the certificate and private key together, for example, when importing into Windows or a browser.
+  > Use PEM for human-readable certificates, such as configuration files or Linux servers. Use DER for binary format requirements, such as Java applications, embedded systems, or network devices that require strict binary encoding. Use PFX when you need to bundle the certificate and private key together, for example, when importing into Windows or a browser.
 
 - Why is it important never to commit private key files to GitHub?  
   >Because exposing a private key allows an attacker to impersonate the certificate owner, decrypt sensitive communications, or perform man-in-the-middle attacks. Once a private key is compromised, the certificate can no longer be trusted.
