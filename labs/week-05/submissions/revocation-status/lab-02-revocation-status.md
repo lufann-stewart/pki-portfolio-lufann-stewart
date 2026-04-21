@@ -26,16 +26,18 @@ Summarize the key steps you performed. Do not copy the lab instructions — desc
   > Good. That means the certificate is still valid and hasn’t been revoked.
 
 - What were the `This Update` and `Next Update` values in the OCSP response, and what do they indicate?  
-  > They show when the status was last updated and when the next update is scheduled, basically how long this info is valid before it refreshes.
+  > These fields define the validity window of the OCSP response. “This Update” indicates when the response was generated, and “Next Update” defines when a fresh response should be retrieved. Between these timestamps, clients can safely reuse the cached response instead of repeatedly querying the OCSP responder.
 
 - Where was the CRL Distribution Point located in the certificate?  
-  > I couldn’t find a CRL URL for GitHub — looks like they just rely on OCSP instead.
+  > The certificate did not include a CRL Distribution Point, indicating reliance on OCSP for revocation checking rather than traditional CRL-based distribution.
 
 ## Key Findings
-- Not all certificates have a CRL URL — GitHub uses OCSP instead.  
-- OCSP provides real-time certificate validation, which is better for high-traffic systems.  
-- The issuer certificate is always required to verify the authenticity of the OCSP response.  
-
+- Not all certificates use CRL Distribution Points; GitHub relies on OCSP for real-time revocation checking, demonstrating a design choice favoring live validation over periodic revocation lists.
+- OCSP responses include This Update and Next Update fields, which define a validity window for cached revocation data. This enables clients to reuse responses instead of querying the OCSP responder on every TLS handshake, improving performance.  
+- The issuer certificate is required to validate the OCSP response because it is used to verify the responder’s digital signature, ensuring the revocation status has not been tampered with.
+- OCSP provides real-time certificate status checking, making it more efficient than CRLs in high-traffic environments where frequent revocation checks are required.
+- The “This Update” and “Next Update” timestamps in the OCSP response define a validity window (e.g., Apr 2–Apr 9), enabling OCSP response caching. Clients reuse the cached response until the “Next Update” time instead of querying the OCSP responder during every TLS handshake, improving performance and reducing latency. This behavior is the basis for OCSP stapling as a performance optimization in TLS.
+  
 ## Explanation
 - What is the difference between OCSP and CRL as revocation checking methods?
   >OCSP gives real-time status for a specific certificate, while CRL is a list of all revoked certificates published on a schedule.
