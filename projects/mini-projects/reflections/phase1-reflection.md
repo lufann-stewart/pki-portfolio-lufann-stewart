@@ -64,3 +64,11 @@ Another lab that reinforced my understanding was:
 `labs/week-07/analyze-enterprise-cert`
 
 This lab helped me understand how large organizations use multiple certificate authorities and infrastructure layers such as load balancers and CDNs to manage TLS at scale.
+
+---
+
+## Required Visual
+
+The PKI certificate lifecycle diagram is included as a separate file in the repository:
+
+`reflections/visual/phase1-diagram.png`
