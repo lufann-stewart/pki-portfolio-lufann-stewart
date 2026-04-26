@@ -33,13 +33,15 @@ Briefly describe what this lab was about in your own words. What PKI concept or 
 - How did the CSR differ from the signed certificate when you compared them?
   >The signed certificate now includes the issuer information and the validity period, which the CSR didn’t have. The CSR only had the subject info and the public key, so the certificate shows that it has been officially issued and can be used.
   
-- What did the diff output show when you compared the public key in the CSR vs the signed cert? I used the Windows equivalent of the diff comand (fc) The fc command showed “no differences encountered,” which means the public key from the certificate matches the public key from the private key. This confirms that they form the same key pair.
+- What did the diff output show when you compared the public key in the CSR vs the signed cert?
+  >I used the Windows equivalent of the diff comand (fc) The fc command showed “no differences encountered,” which means the public key from the certificate matches the public key from the private key. This confirms that they form the same key pair.
   
 ## Key Findings
 - After signing the certificate, the issuer information and validity period were added. The CSR alone only contained the subject and public key.  
-- Comparing the public key from the certificate to the one from the private key showed they are identical, confirming the certificate was generated from the correct key pair.  
+- Comparing the public key from the certificate to the one from the private key showed they are identical, confirming the certificate was generated from the correct key pair. In production, this validation is performed before deployment to ensure the server’s private key matches the certificate being installed. 
 - The private key must stay private; if someone else had it, they could impersonate the certificate owner.  
 - Self-signed certificates can be used for internal testing, but for public trust, a certificate should be signed by a trusted CA.
+- Fields such as Issuer, Validity Period, and Digital Signature are only added after a Certificate Authority signs the CSR. This distinguishes a signed certificate from a CSR, which only contains subject information and a public key. 
 
 ## Explanation
 - Why must the private key never leave the requestor's machine — even when submitting a CSR to a CA?
@@ -52,7 +54,7 @@ Briefly describe what this lab was about in your own words. What PKI concept or 
   >A self-signed certificate is appropriate for internal networks, testing, or lab environments where public trust isn’t required.
 
 ## Challenges / Troubleshooting
->Understanding the structure of the CSR output and distinguishing it from a signed certificate took some time, especially identifying which fields are present before and after the certificate is issued.
+>Working through OpenSSL output required attention to detail when verifying which fields belonged to the CSR versus the signed certificate during validation.
 
 ## Artifacts
 - test_csr.pem, test_cert.pem

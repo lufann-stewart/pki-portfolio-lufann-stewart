@@ -38,6 +38,8 @@ Summarize the key steps you performed. Do not copy the lab instructions — desc
 - Expired certificates immediately fail validation and break trust.
 - `-checkend` is useful for proactively monitoring expiration in scripts.
 - Certificate replacement involves generating a completely new key and certificate, not just extending validity.
+- The exit code behavior of `openssl x509 -checkend` is critical for automation: a return value of 0 indicates the certificate is still valid within the defined time window, while 1 indicates the certificate will expire within that window. This allows monitoring systems and scripts to proactively detect impending certificate expiration and trigger alerts or renewal workflows.
+- In production environments, expired certificates cause immediate TLS validation failures. Systems will reject connections with errors such as “certificate has expired (error 10),” resulting in service outages. This demonstrates why expiration monitoring is critical in enterprise environments where certificate-based authentication is required for secure communication.
   
 ## Explanation
 - What is the difference between certificate renewal and certificate replacement?
