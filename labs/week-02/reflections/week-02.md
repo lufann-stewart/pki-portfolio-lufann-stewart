@@ -1,9 +1,5 @@
 # Week 2 Reflection — Cryptography Fundamentals
 
-Submit this in your portfolio repository:
-
-reflections/week-02.md
-
 ---
 
 ## Prompts
