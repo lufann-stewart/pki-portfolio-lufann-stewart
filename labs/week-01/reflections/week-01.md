@@ -1,7 +1,4 @@
-# Week X Reflection
-
-Submit this in your portfolio repository:
-reflections/week-XX.md
+# Week 1 Reflection
 
 ---
 
