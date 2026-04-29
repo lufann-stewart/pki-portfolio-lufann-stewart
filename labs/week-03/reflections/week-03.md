@@ -1,9 +1,5 @@
 # Week 3 Reflection
 
-Submit this in your portfolio repository:
-
-`reflections/week-XX.md` (e.g. `reflections/week-03.md`)
-
 ---
 
 ## Prompts
