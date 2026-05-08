@@ -71,7 +71,7 @@ Status confirmed as Running:
     >Failed Requests  
     >Certificate Templates  
 
-![Nodes Screenshot]certsrv.png
+![Certsrv Screenshot](certsrv.png)
 ---
 
 ## Step 5 — CertLog Folder Contents
