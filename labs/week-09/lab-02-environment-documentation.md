@@ -41,8 +41,8 @@ certsrv.msc console nodes table:
   ```
   C:\Windows\system32\CertLog
   ```
-- Templates visible in certtmpl.msc: (list here)
-  Administrator, Aiuthenciated Session, Basic EFS, CA Exchange, CEP Encryption, Code SIgning, COmputer, Cross Ceretification Authroity, Directory Email Replication, Domain Controller, Domain Controller Authentication, EFS Reovery, Enrollment Agency, Enrollement Agency (computer), Exchange Enrollemnt A
+- Templates visible in certtmpl.msc: 
+  >Administrator, Authenticated Session, Basic EFS, CA Exchange, CEP Encryption, Code Signing, Computer, Cross Certification Authroity, Directory Email Replication, Domain Controller, Domain Controller Authentication, EFS Reovery, Enrollment Agency, Enrollement Agency (computer), Exchange Enrollemtn A ***DOUBLE CHECK T HIS IN THE VM!!!!
 
 ---
 
@@ -90,28 +90,38 @@ CertUtil: -store command completed successfully.
 ```
 
 Observations — what Subject, Issuer, and Thumbprint confirm:
-(write here)
+  >The Subject field confirmed that the certificate belongs to CVI Issuing CA 1. The Issuer field revealed that it was signed by the CVI Root CA, demonstrating the hierarchical trust relationship between the offline Root CA and the Issuing CA. The SHA1 certificate hash functioned as the certificate thumbprint, uniquely identifying the certificate within the PKI environment.
 
 ---
 
 ## Part C — Active Directory Documentation
 
-- PKI Admins OU location: (describe here)
-- pki.admin group memberships: (list here)
-- cert.manager group memberships: (list here)
-- Domain-joined computers visible: (list here)
-- certtmpl.msc on DC01 — same templates as PKI-SRV01: Yes / No
+- PKI Admins OU location:
+  >corp.cvilab.local/PKI Admins
+- pki.admin group memberships:
+  >Domain Admins, Domain Users, PKI Admins
+- cert.manager group memberships:
+  >Domain Users, PKI Admins
+- Domain-joined computers visible:
+  >DC01 (located in the Domain Controllers OU)      
+   PKI-SRV01 (located in the Computers container)
+- certtmpl.msc on DC01 — same templates as PKI-SRV01:
+  >Yes
 
 ---
 
-## Part D — Environment Summary
+## Part D — Environment Summary (possible repetition fix this )
 
-Write in prose paragraphs covering:
+The environment is made up of three virtual machines that support an Active Directory and PKI setup. DC01 functions as the domain controller and provides Active Directory Domain Services and DNS for the corp.cvilab.local domain. PKI-SRV01 is the enterprise issuing certificate authority and is responsible for issuing certificates to users, computers, and services in the domain. The Root CA is kept offline and is used only to sign the issuing CA certificate, which helps maintain the security of the trust root and reduces exposure to compromise.   
 
-1. **Environment Topology**
-2. **CA Hierarchy**
-3. **Certificate Templates**
-4. **Active Directory Structure**
-5. **One thing you found interesting or unexpected**
+The certificate authority hierarchy starts with the Root CA, which acts as the trust anchor for the entire PKI environment and remains offline for security purposes. The Root CA signs the certificate for CVI Issuing CA 1, which establishes a trusted chain of authority. Below the issuing CA are end entities such as users, computers, and services that receive certificates but cannot issue certificates themselves. This structure ensures that certificate issuance is controlled and that the most sensitive authority remains isolated.   
 
-*This section is referenced in the Week 13 backup and recovery lab — write it as a runbook entry.*
+Certificate templates are stored centrally in the Active Directory Configuration partition and are available across the entire domain. They define the types of certificates that can be issued, such as user, machine, web server, and domain controller certificates. These templates exist in Active Directory as directory objects and represent the central definition of certificate types available in the environment. Certificate enrollment is controlled through these templates and enforced by the issuing CA based on policy and permissions.   
+
+The Active Directory structure includes organizational units, user accounts, and security groups that support certificate management. DC01 appears under the Domain Controllers container, while PKI-SRV01 appears under the Computers container as a domain-joined machine. The Root CA is not listed because it is not joined to the domain and remains offline by design. The PKI Admins OU is located at `corp.cvilab.local/PKI Admins` and contains two user accounts, PKI Admin and Cert Manager, which are used to separate responsibilities within the PKI environment, as well as a security group called PKI Admins that controls administrative access to certificate authority management functions.   
+
+One thing I found interesting and unexpected was how certificate templates exist in Active Directory but must be accessed differently depending on the system and tools available. On DC01, I was not able to use the `certtmpl.msc` console as part of my workflow, so I instead queried Active Directory directly using PowerShell to retrieve the certificate template objects:   
+
+`Get-ADObject -LDAPFilter "(objectClass=pKICertificateTemplate)" -SearchBase "CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=corp,DC=cvilab,DC=local"`   
+
+This returned the full set of certificate template objects stored in Active Directory. On PKI-SRV01, I attempted to use the same PowerShell approach, but it failed because the Active Directory PowerShell module (RSAT tools) was not available on that system. As a result, the command was not recognized and returned an error. To continue the comparison from the certificate authority side, I used `certutil -ADTemplate`. This displayed the same underlying certificate templates but also included additional information such as enrollment and Auto-Enroll status. Some entries showed “Access is denied,” which reflects permission restrictions rather than missing templates. This comparison showed that Active Directory is the central source of certificate template data, while different systems and tools expose that data in different ways depending on installed components and permissions.
