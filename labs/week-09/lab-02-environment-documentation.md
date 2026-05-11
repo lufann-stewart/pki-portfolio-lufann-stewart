@@ -1,7 +1,7 @@
 # Lab 02 — AD CS Console Exploration & CA Hierarchy Documentation
 
-Lufann Stewart 
-May 8, 2026
+Lufann Stewart     
+May 8, 2026    
 **Phase:** 2 | **Week:** 9  
 **Submission Path:** labs/week-09/lab-02-environment-documentation.md
 
@@ -13,10 +13,10 @@ certsrv.msc console nodes table:
 
 | Node                  | Contents / Observations |
 |-----------------------|:-------------------------|
-| Revoked Certificates  |      Folder is Empty                   |
-| Issued Certificates   |       Folder is Empty                   |
-| Pending Requests      |       Folder is Empty                   |
-| Failed Requests       |     Folder is Empty                     |
+| Revoked Certificates  |      Folder is empty                   |
+| Issued Certificates   |       Folder is empty                   |
+| Pending Requests      |       Folder is empty                   |
+| Failed Requests       |     Folder is empty                     |
 | Certificate Templates |     Contains various default templates including: Directory Email Replication, Domain Controller Authentication, Kerberos Authentication, EFS Recovery Agent, Basic EFS, Domain Controller, Web Server, Computer, User, Subordinate Certification Authority, and Administrator. These define the intended purpose and technical attributes for certificates the CA can issue.                     |
 
 - CA Properties — CDP path:  
@@ -42,7 +42,7 @@ certsrv.msc console nodes table:
   C:\Windows\system32\CertLog
   ```
 - Templates visible in certtmpl.msc: 
-  >Administrator, Authenticated Session, Basic EFS, CA Exchange, CEP Encryption, Code Signing, Computer, Cross Certification Authroity, Directory Email Replication, Domain Controller, Domain Controller Authentication, EFS Reovery, Enrollment Agency, Enrollement Agency (computer), Exchange Enrollemtn A ***DOUBLE CHECK T HIS IN THE VM!!!!
+  >Administrator, Authenticated Session, Basic EFS, CA Exchange, CEP Encryption, Code Signing, Computer, Cross Certification Authority, Directory Email Replication, Domain Controller, Domain Controller Authentication, EFS Recovery, Enrollment Agency, Enrollment Agency (Computer), Exchange Enrollment (Offline Request), Exchange Signature Only, Exchange User, IPSec, IPSec (Offline Request), Kerberos Authentication, Key Recovery Agent, OCSP Response Signing, RAS and IAS Server, Root Certification Authority, Router (Offline request), Smartcard Logon, Smartcard User, Subordinate Certification Authority, Trust List Signing, User, User Signature Only, Web Server, Workstation Authentication
 
 ---
 
@@ -110,11 +110,10 @@ Observations — what Subject, Issuer, and Thumbprint confirm:
 
 ---
 
-## Part D — Environment Summary (possible repetition fix this )
-
+## Part D — Environment Summary 
 The environment is made up of three virtual machines that support an Active Directory and PKI setup. DC01 functions as the domain controller and provides Active Directory Domain Services and DNS for the corp.cvilab.local domain. PKI-SRV01 is the enterprise issuing certificate authority and is responsible for issuing certificates to users, computers, and services in the domain. The Root CA is kept offline and is used only to sign the issuing CA certificate, which helps maintain the security of the trust root and reduces exposure to compromise.   
 
-The certificate authority hierarchy starts with the Root CA, which acts as the trust anchor for the entire PKI environment and remains offline for security purposes. The Root CA signs the certificate for CVI Issuing CA 1, which establishes a trusted chain of authority. Below the issuing CA are end entities such as users, computers, and services that receive certificates but cannot issue certificates themselves. This structure ensures that certificate issuance is controlled and that the most sensitive authority remains isolated.   
+The certificate authority hierarchy starts with the Root CA, which acts as the trust anchor for the entire PKI environment and remains offline for security purposes. The Root CA signs the issuing CA certificate for CVI Issuing CA 1, which establishes a trusted chain of authority. Below the issuing CA are end entities such as users, computers, and services that receive certificates but cannot issue certificates themselves. This structure ensures that certificate issuance is controlled and that the most sensitive authority remains isolated.   
 
 Certificate templates are stored centrally in the Active Directory Configuration partition and are available across the entire domain. They define the types of certificates that can be issued, such as user, machine, web server, and domain controller certificates. These templates exist in Active Directory as directory objects and represent the central definition of certificate types available in the environment. Certificate enrollment is controlled through these templates and enforced by the issuing CA based on policy and permissions.   
 
