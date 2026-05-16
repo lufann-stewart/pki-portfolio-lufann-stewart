@@ -1,8 +1,8 @@
 # Lab 01: Explore and Duplicate a Certificate Template
 
-Lufann Stewart 
-May 15, 2026
-**Phase:** 2 | **Week:** 10  
+Lufann Stewart     
+May 15, 2026    
+**Phase:** 2 | **Week:** 10        
 **Submission Path:** `labs/week-10/lab-01-template-exploration.md`
 
 ---
