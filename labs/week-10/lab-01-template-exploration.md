@@ -49,7 +49,7 @@ Open the Certificate Templates console: **Run → certtmpl.msc**
 **General tab — notes:**
 
 ```
-user template name and internal name are the same there is also an option greyed out an checked for publish in Active Diretory then uneerthat an option thats greyed out to do not auto reenroll if a duplicate certificate exists in active directity the validity and renewal periods are greyed out you cant change them.
+The User template display name and internal template name are both “User.” The “Publish certificate in Active Directory” option is enabled but greyed out. There is also a greyed-out option that prevents auto reenrollment if a duplicate certificate already exists in Active Directory. The validity period and renewal period settings are also greyed out because built-in templates cannot be modified directly.
 ```
 
 **Request Handling tab — Purpose:**
@@ -61,8 +61,7 @@ Signature and Encryption
 **Subject Name tab — Subject name format:**
 
 ```
-(Built from AD? Supplied in request? What fields?) Need to answer what fields
-Built from information in Active Directory it says include aemail name box and its checked greyed out also and the type of subject says user checked an greyed out
+The subject name is built from information in Active Directory rather than being supplied in the request. The template uses the user object information from Active Directory, and the “Include e-mail name in subject name” option is enabled. The subject type is set to “User,” and these settings are greyed out because the built-in template cannot be modified directly.
 ```
 
 **Extensions tab — Key Usage:**
@@ -71,7 +70,7 @@ Built from information in Active Directory it says include aemail name box and i
 Signature requirements: 
 Digital signature 
 Allow key exchange only with key encryption
-Crtitical extension.
+Critical extension.
 
 ```
 
@@ -80,7 +79,7 @@ Crtitical extension.
 ```
 Encrypting File System 
 Secure Email 
-Client Sthentication
+Client Authentication
 
 ```
 
@@ -104,7 +103,6 @@ Signature and Encryption
 **Subject Name tab:**
 
 ```
-(Built from AD? Supplied in request?) 
 Built from information in Active Directory
 ```
 
@@ -114,7 +112,7 @@ Built from information in Active Directory
 Signature requirements: 
 Digital signature 
 Allow key exchange only with key encryption
-Crtitical extension.
+Critical extension.
 
 ```
 
@@ -155,7 +153,7 @@ Supplied in the request.
 Signature requirements: 
 Digital signature 
 Allow key exchange only with key encryption
-Crtitical extension.
+Critical extension.
 
 ```
 
@@ -172,7 +170,6 @@ Server Authentication
 In your own words — what is the most significant difference between the User, Computer, and Web Server templates?
 
 ```
-(your answer here — 3–5 sentences)
 The most significant difference between the User, Computer, and Web Server templates is their purpose and how the subject name is generated. The User and Computer templates automatically build the subject name from information stored in Active Directory, while the Web Server template requires the subject name to be supplied in the request. This is important because web servers may need certificates for DNS names or websites that are not directly tied to an Active Directory object. The templates also differ in their EKUs and intended use cases, such as secure email for users and server authentication for web servers. Additionally, the Web Server template has a longer validity period of two years compared to one year for the User and Computer templates.
 ```
 
@@ -202,26 +199,26 @@ The Web Server template uses “Supplied in the request” because web servers o
 |---------|---------------|-----------|
 | Template display name | Web Server | CVI-WebServer |
 | Template name | WebServer | CVI-WebServer |
-| Validity period |2 year |6 weeks |
-| Renewal period |1 year |6 weeks |
+| Validity period |2 years |1 year |
+| Renewal period |6 weeks |6 weeks |
 
 **Rationale for validity period chosen:**
 
 ```
-(why did you choose this period?) IDK becaue it has to be checked and sausidited for accuracy to make asure everything is working especalluy casue its internet facing?
+A validity period of one year was chosen to improve security and reduce long-term risk exposure for the certificate. Shorter certificate lifetimes help ensure certificates are reviewed, renewed, and audited more frequently, especially for internet-facing web services. This also helps organizations respond more quickly to configuration changes or compromised certificates if issues occur.
 ```
 
 **Subject Name tab — changes made:**
 
 | Setting | Change Made | Rationale |
 |---------|-------------|-----------|
-| | | |
+|Subject name format   | No changes made  | The subject name is configured to be supplied in the request, meaning the requester must manually define the certificate subject (such as the DNS name). This is required for web server certificates because Active Directory does not automatically generate appropriate names for web-facing services.
 
 **Security tab — permissions confirmed:**
 
 | Group / Account | Enroll | Autoenroll |
 |-----------------|--------|------------|
-| Domain Computers |X | |
+| Domain Computers |X| |
 | Authenticated Users | | |
 
 **Template saved:**
@@ -240,7 +237,24 @@ certutil -template CVI-WebServer
 **Full output:**
 
 ```
-(paste output here)
+Name: Active Directory Enrollment Policy
+  Id: {41635678-B3E8-4BD7-8FE7-D49A1E336991}
+  Url: ldap:
+34 Templates:
+
+  Template[8]:
+  TemplatePropCommonName = CVI-WebServer
+  TemplatePropFriendlyName = CVI-WebServer
+  TemplatePropSecurityDescriptor = O:S-1-5-21-3975454498-3980183307-2685672490-1105G:S-1-5-21-3975454498-3980183307-2685672490-519D:PAI(OA;;RPWPCR;0e10c968-78fb-11d2-90d4-00c04f79dc55;;DA)(OA;;RPWPCR;0e10c968-78fb-11d2-90d4-00c04f79dc55;;S-1-5-21-3975454498-
+3980183307-2685672490-519)(A;;CCDCLCSWRPWPDTLOSDRCWDWO;;;DA)(A;;CCDCLCSWRPWPDTLOSDRCWDWO;;;S-1-5-21-3975454498-3980183307-2685672490-519)(A;;CCDCLCSWRPWPDTLOSDRCWDWO;;;S-1-5-21-3975454498-3980183307-2685672490-1105)(A;;LCRPLORC;;;AU)
+
+    Allow Enroll	CORP\Domain Admins
+    Allow Enroll	CORP\Enterprise Admins
+    Allow Full Control	CORP\Domain Admins
+    Allow Full Control	CORP\Enterprise Admins
+    Allow Full Control	CORP\pki.admin
+    Allow Read	NT AUTHORITY\Authenticated Users
+
 ```
 
 **From the certutil output — record the following:**
@@ -248,12 +262,12 @@ certutil -template CVI-WebServer
 | Field | Value from certutil Output |
 |-------|---------------------------|
 | Template Name |CVI-WebServer |
-| Template OID |CVI-WebServer |
-| Schema Version | |
-| Key Usage | |
-| Enhanced Key Usage (EKU) | |
-| Validity Period | |
-| Subject Name flags | |
+| Template OID |1.3.6.1.4.1.311.21.8.15886664.4298044.8996776.14853544.7902291.169.13096150.8214139 |
+| Schema Version |2 |
+| Key Usage | Digital Signature, Key Encipherment |
+| Enhanced Key Usage (EKU) | Server Authentication|
+| Validity Period |1 Year |
+| Subject Name flags | CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT|
 
 ---
 
@@ -262,26 +276,26 @@ certutil -template CVI-WebServer
 **Why does AD CS require you to duplicate a built-in template rather than modifying it directly?**
 
 ```
-Microsoft locks the template to prevent accidental breakage duplicating snures no accidents while allowing new templates to be created and modified . I got that from this Built-in templates cannot be modified directly — Microsoft locks them to prevent accidental breakage. Duplicating creates a new, editable copy.
+Active Directory Certificate Services requires administrators to duplicate built-in templates because the default templates are protected to prevent accidental changes that could disrupt certificate enrollment across the domain. Since these templates are used as trusted baseline configurations, modifying them directly could impact multiple systems and break existing certificate issuance. Duplicating a template allows administrators to safely customize settings for specific use cases without affecting the original default configuration.
 ```
 
 **One setting in the template you found unexpected or would want to explore further:**
 Maybe the Server tab that has the options: DO not store certificates and requests in the CA database 
 
 ```
-(your observation here)
+One setting I found interesting is the option related to not storing certificates and requests in the CA database. I would want to explore this further because it affects whether issued certificates and requests are logged and tracked by the Certificate Authority. Disabling storage could reduce audit visibility and make it harder to troubleshoot or verify certificate issuance history, which is important in security environments.
 ```
 
 ---
 
 ## Submission Checklist
 
-- [ ] Pre-lab verification completed and outputs recorded
-- [ ] Part A: All three templates explored with tab-level observations
-- [ ] Part A: Comparison question answered in own words
-- [ ] Part B: Duplicate template created as CVI-WebServer
-- [ ] Part B: All changes documented with rationale
-- [ ] Part C: certutil -template output pasted and key fields extracted
-- [ ] Reflection section completed
-- [ ] File saved as `lab-01-template-exploration.md`
-- [ ] File committed to portfolio repo under `labs/week-10/`
+- [X] Pre-lab verification completed and outputs recorded
+- [X] Part A: All three templates explored with tab-level observations
+- [X] Part A: Comparison question answered in own words
+- [X] Part B: Duplicate template created as CVI-WebServer
+- [X] Part B: All changes documented with rationale
+- [X] Part C: certutil -template output pasted and key fields extracted
+- [X] Reflection section completed
+- [X] File saved as `lab-01-template-exploration.md`
+- [X] File committed to portfolio repo under `labs/week-10/`
