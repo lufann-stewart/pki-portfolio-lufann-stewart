@@ -22,7 +22,7 @@ certutil -ping
 - [ ] No — action taken:
 
 **CVI-WebServer template visible in certtmpl.msc (from Lab 01):**
-- [ ] Yes
+- [X] Yes
 - [ ] No — complete Lab 01 before proceeding
 
 ---
@@ -39,17 +39,17 @@ The CVI-WebServer template exists in Active Directory but is not yet published t
 4. Clicked **OK**
 
 **CVI-WebServer template now visible under Certificate Templates node:**
-- [ ] Yes
+- [X] Yes
 - [ ] No — describe what happened:
 
 ```
-(describe here)
+No issues _ template is visible.
 ```
 
 **Screenshot or description of the Certificate Templates node showing CVI-WebServer:**
 
 ```
-(describe what you see in certsrv.msc)
+![CertSrv Node](certsrv1.png)
 ```
 
 ---
@@ -60,7 +60,7 @@ The CVI-WebServer template exists in Active Directory but is not yet published t
 
 1. Opened **mmc.exe** → **File → Add/Remove Snap-in**
 2. Added **Certificates** snap-in
-3. Selected: ________________ (Computer account / My user account / Service account)
+3. Selected: My user account 
 4. Navigated to **Personal → Certificates**
 5. Right-clicked → **All Tasks → Request New Certificate**
 6. Proceeded through the Certificate Enrollment wizard
@@ -68,7 +68,7 @@ The CVI-WebServer template exists in Active Directory but is not yet published t
 **Certificate Enrollment wizard — enrollment policy selected:**
 
 ```
-(Active Directory Enrollment Policy or other?)
+Active Directory Enrollment Policy selected
 ```
 
 **Templates shown in the wizard:**
