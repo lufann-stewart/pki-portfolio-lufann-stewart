@@ -48,9 +48,9 @@ No issues _ template is visible.
 
 **Screenshot or description of the Certificate Templates node showing CVI-WebServer:**
 
-```
+
 ![CertSrv Node](certsrv1.png)
-```
+
 
 ---
 
@@ -74,21 +74,22 @@ Active Directory Enrollment Policy selected
 **Templates shown in the wizard:**
 
 ```
-(list all templates visible)
+Computer  
+CVI-WebServer  
 ```
 
 **CVI-WebServer template visible:**
-- [ ] Yes
+- [X] Yes
 - [ ] No — troubleshooting steps taken:
 
 **Subject name entered (if prompted):**
 
 ```
-(what subject name did you provide? or was it auto-populated?)
+No prompt for Subject Name.
 ```
 
 **Certificate request submitted:**
-- [ ] Yes — certificate issued immediately
+- [X] Yes — certificate issued immediately
 - [ ] Yes — certificate pending manager approval
 - [ ] No — error encountered:
 
@@ -108,22 +109,22 @@ Navigate to the Personal → Certificates store and double-click the issued cert
 
 | Field | Value |
 |-------|-------|
-| Issued to | |
-| Issued by | |
-| Valid from | |
-| Valid to | |
+| Issued to | PKI-SRV01.corp.cvilab.local|
+| Issued by |CVI Issuing CA 1 |
+| Valid from |5/22/2026 |
+| Valid to | 4/25/2027|
 
 **Details tab — record the following fields:**
 
 | Field | Value |
 |-------|-------|
-| Serial Number | |
-| Signature Algorithm | |
-| Subject | |
-| Key Usage | |
-| Enhanced Key Usage | |
-| Subject Alternative Name (if present) | |
-| Thumbprint | |
+| Serial Number |44000000030d20ca71500ba5c4000000000003 |
+| Signature Algorithm |sha256RSA|
+| Subject |CN = PKI-SRV01.corp.cvilab.local |
+| Key Usage | Digital Signature, Key Encipherment (a0)|
+| Enhanced Key Usage |Server Authentication (1.3.6.1.5.5.7.3.1) |
+| Subject Alternative Name (if present) | Other Name: Principal Name=PKI-SRV01$@corp.cvilab.local DNS Name=PKI-SRV01.corp.cvilab.local|
+| Thumbprint |e0046ea8c9d051f976c47ff60246cf3f488ad4f8 |
 
 ---
 
@@ -140,7 +141,23 @@ Replace `<thumbprint>` with the thumbprint value (no spaces).
 **Full certutil output:**
 
 ```
-(paste output here)
+My "Personal"
+================ Certificate 0 ================
+Serial Number: 44000000030d20ca71500ba5c4000000000003
+Issuer: CN=CVI Issuing CA 1, DC=corp, DC=cvilab, DC=local
+ NotBefore: 5/22/2026 5:45 PM
+ NotAfter: 4/25/2027 7:36 PM
+Subject: CN=PKI-SRV01.corp.cvilab.local
+Non-root Certificate
+Template: CVI-WebServer
+Cert Hash(sha1): e0046ea8c9d051f976c47ff60246cf3f488ad4f8
+  Key Container = a547eac941e3a6e7ae8e70257435eee5_f0a99c17-76d3-498a-97de-2992c06105fd
+  Simple container name: te-CVI-WebServer-f00259a7-e599-4167-965d-0298e0b61c88
+  Provider = Microsoft RSA SChannel Cryptographic Provider
+Private key is NOT exportable
+Encryption test passed
+CertUtil: -store command completed successfully.
+
 ```
 
 ---
@@ -150,17 +167,17 @@ Replace `<thumbprint>` with the thumbprint value (no spaces).
 Navigate to **certsrv.msc → CVI Issuing CA 1 → Issued Certificates**.
 
 **Does the certificate appear in the Issued Certificates node?**
-- [ ] Yes
+- [X] Yes
 
 **Record from the Issued Certificates node:**
 
 | Column | Value |
 |--------|-------|
-| Request ID | |
-| Requester Name | |
-| Certificate Template | |
-| Issued Common Name | |
-| Certificate Expiration Date | |
+| Request ID | 3|
+| Requester Name |CORP\PKI-SRV01$ |
+| Certificate Template |CVI-WebServer |
+| Issued Common Name | PKI-SRV01.corp.cvilab.local|
+| Certificate Expiration Date |4/25/2027 7:36 PM |
 
 ---
 
@@ -174,27 +191,29 @@ Describe the full certificate issuance workflow in your own words. Cover:
 4. Where the issued certificate was placed and why
 
 ```
-(your write-up here — aim for 1–2 paragraphs, plain language)
+When the CVI-WebServer template was published in Active Directory, it became available for enrollment across the domain. To request it, I ran the MMC Certificate Enrollment wizard, which generated a secure private key locally on the server and wrapped the matching public key into a Certificate Signing Request (CSR) to send over the network to the CA. 
+
+The Issuing CA evaluated the request against Active Directory permissions to ensure the server had enrollment rights for the template. Once verified, the CA issued the certificate. The certificate was then automatically placed back into the server's Local Machine Personal Store (Cert:\LocalMachine\My) so secure web applications can access it, and a copy was logged in the Issued Certificates node inside certsrv.msc.
 ```
 
 **One thing about the issuance process that you did not expect or want to understand better:**
 
 ```
-(your observation here)
+I didn't expect the environmental tooling (like VirtualBox clipboard sync and sudden VM shutdowns) to be the biggest bottleneck in the workflow. It made me realize how important stable remote administrative access is when managing a CA, as fighting with console connectivity issues can drastically slow down an deployment.
 ```
 
 ---
 
 ## Submission Checklist
 
-- [ ] Pre-lab verification completed
-- [ ] Part A: CVI-WebServer template published to CVI Issuing CA 1
-- [ ] Part A: Template visible in certsrv.msc Certificate Templates node — confirmed
-- [ ] Part B: Certificate requested via MMC — request submitted
-- [ ] Part B: Enrollment wizard observations documented
-- [ ] Part C: Certificate details recorded from MMC (General + Details tabs)
-- [ ] Part C: certutil -store My output pasted
-- [ ] Part C: Certificate confirmed in certsrv.msc Issued Certificates node
-- [ ] Part D: Issuance workflow write-up completed in own words
-- [ ] File saved as `lab-02-first-issuance.md`
-- [ ] File committed to portfolio repo under `labs/week-10/`
+- [X] Pre-lab verification completed
+- [X] Part A: CVI-WebServer template published to CVI Issuing CA 1
+- [X] Part A: Template visible in certsrv.msc Certificate Templates node — confirmed
+- [X] Part B: Certificate requested via MMC — request submitted
+- [X] Part B: Enrollment wizard observations documented
+- [X] Part C: Certificate details recorded from MMC (General + Details tabs)
+- [X] Part C: certutil -store My output pasted
+- [X] Part C: Certificate confirmed in certsrv.msc Issued Certificates node
+- [X] Part D: Issuance workflow write-up completed in own words
+- [X] File saved as `lab-02-first-issuance.md`
+- [X] File committed to portfolio repo under `labs/week-10/`
