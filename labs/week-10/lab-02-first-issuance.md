@@ -60,7 +60,7 @@ No issues _ template is visible.
 
 1. Opened **mmc.exe** → **File → Add/Remove Snap-in**
 2. Added **Certificates** snap-in
-3. Selected: My user account 
+3. Selected: Computer account (Local Computer)
 4. Navigated to **Personal → Certificates**
 5. Right-clicked → **All Tasks → Request New Certificate**
 6. Proceeded through the Certificate Enrollment wizard
