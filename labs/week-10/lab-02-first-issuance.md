@@ -199,7 +199,7 @@ The Issuing CA evaluated the request against Active Directory permissions to ens
 **One thing about the issuance process that you did not expect or want to understand better:**
 
 ```
-I didn't expect the environmental tooling (like VirtualBox clipboard sync and sudden VM shutdowns) to be the biggest bottleneck in the workflow. It made me realize how important stable remote administrative access is when managing a CA, as fighting with console connectivity issues can drastically slow down an deployment.
+I want to better understand how enterprise CA environments are managed remotely, especially how administrators maintain reliable access and control during certificate enrollment and management tasks.
 ```
 
 ---
