@@ -32,7 +32,7 @@ SoftHSM2 is a software-based cryptographic store that mimics the behavior of a p
 In your own words, describe what the PKCS#11 interface is:
 
 ```
-The PKCS#11 interface is the communication bridge that the CA uses to interact with the HSM to do cryptographic operations such as key generation and signing.
+PKCS#11 is the interface that sits between the CA and the HSM. It lets the CA request cryptographic operations like key generation and signing without ever directly touching the private key material inside the HSM.
 ```
 
 **HSM being simulated in this demo:**
@@ -200,7 +200,7 @@ Fill in the table based on the lesson and demonstration:
 **In your own words: what does a physical HSM protect against that SoftHSM2 cannot?**
 
 ```
-A physical HSM provides tamper-resistant protection for private keys and prevents direct access to key material in ways that software-based solutions like SoftHSM2 cannot.
+A physical HSM protects against key extraction, disk or memory compromise, and unauthorized administrative access by ensuring private keys never exist outside the hardware boundary.
 ```
 
 ---
