@@ -262,10 +262,10 @@ CertUtil: -store command completed successfully.
 
 | Field | Value |
 |-------|-------|
-| Subject |CN=CVI Issuing CA 1, DC=corp, DC=cvilab, DC=local
+| Subject |PKI Admin
 CA Version: V0.0 |
 | Issuer |CN=CVI Root CA, DC=corp, DC=cvilab, DC=local |
-| Serial Number |5800000002f7714edc7f317c46000000000002 |
+| Serial Number |4400000004b742b5daba3d4deb000000000004 |
 | Key Usage |Digital Signature, Key Encipherment |
 | Enhanced Key Usage (EKU) |Client Authentication (1.3.6.1.5.5.7.3.2) |
 | Validity: Not Before |5/22/2026 5:45 PM |
