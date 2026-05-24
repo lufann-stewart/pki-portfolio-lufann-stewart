@@ -176,7 +176,7 @@ The most significant difference between the User, Computer, and Web Server templ
 Why does the Web Server template use "Supplied in the request" for the subject name rather than building it from Active Directory?
 
 ```
-The Web Server template uses “Supplied in the request” because web servers often need certificates for specific DNS names or websites that may not match the computer name stored in Active Directory. This allows the requester to manually specify the exact subject name needed for the website or service. If Active Directory automatically generated the name, it could create certificate mismatches that would cause browser trust or HTTPS errors.
+This allows the requester to define the exact subject name needed for the certificate, such as DNS names or service identities. This is important because web services often operate outside Active Directory naming structures, and certificates must match external-facing identities to avoid trust or hostname validation errors.
 ```
 
 ---
@@ -276,7 +276,7 @@ Name: Active Directory Enrollment Policy
 **Why does AD CS require you to duplicate a built-in template rather than modifying it directly?**
 
 ```
-Active Directory Certificate Services requires administrators to duplicate built-in templates because the default templates are protected to prevent accidental changes that could disrupt certificate enrollment across the domain. Since these templates are used as trusted baseline configurations, modifying them directly could impact multiple systems and break existing certificate issuance. Duplicating a template allows administrators to safely customize settings for specific use cases without affecting the original default configuration.
+Active Directory Certificate Services prevents direct modification of built-in templates to protect default certificate configurations used across the domain. Duplicating a template allows administrators to customize settings safely without impacting existing enterprise certificate behavior.
 ```
 
 **One setting in the template you found unexpected or would want to explore further:**
