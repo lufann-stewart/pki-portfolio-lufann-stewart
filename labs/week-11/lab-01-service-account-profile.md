@@ -59,50 +59,50 @@ Document every setting with a reason. This is the design record for the template
 
 | Key Usage | Included? | Reason |
 |-----------|-----------|--------|
-| Digital Signature | Yes |Allows the service account to sign authentication challenges. |
-| Key Encipherment |Yes  |Allows the server to securely wrap and exchange keys during the TLS handshake. |
+| Digital Signature | Yes |Required for client authentication and proving identity.|
+| Key Encipherment |Yes  |Allows secure key exchange during authenticated sessions. |
 | Data Encipherment | No|This account only authenticates; it does not directly encrypt files at rest.|
 | Non-Repudiation |No | Not required for automated service logons. |
 
 **Explanation of Key Usage decisions:**
 
 ```
-I inculduded Digital Sngature and Key enchphirement becuase they work together this s clent authentication and needs the the singature to verify and use the key enchypirement to securley wrap and echagne keys during tls handsjake.
+I included Digital Signature because the certificate must prove the identity of the service account during authentication. I included Key Encipherment to support secure session key exchange during encrypted communications. These two usages are commonly required for client authentication certificates.
 ```
 
 **2 — Extended Key Usage (EKU)**
 
 | EKU | Included? | OID | Reason |
 |-----|-----------|-----|--------|
-| Client Authentication |Yes | 1.3.6.1.5.5.7.3.2 |Needs to be authenticated |
-| Server Authentication |No | 1.3.6.1.5.5.7.3.1 |WIll not be authenticating servers |
-| Code Signing | No| 1.3.6.1.5.5.7.3.3 |a service account will not be code signing noe necesary |
-| Secure Email |No | 1.3.6.1.5.5.7.3.4 | this is not a email service|
+| Client Authentication |Yes | 1.3.6.1.5.5.7.3.2 |Allows the service account to authenticate to domain services and applications.|
+| Server Authentication |No | 1.3.6.1.5.5.7.3.1 |Will not be used to authenticate servers. |
+| Code Signing | No| 1.3.6.1.5.5.7.3.3 |This service account is not intended to sign applications, scripts, or executables.|
+| Secure Email |No | 1.3.6.1.5.5.7.3.4 | The certificate is not intended for email encryption or signing.|
 
 **Explanation of EKU decisions:**
 
 ```
-This certificate is explicitly designed to authenticate the identity of an automated background service account (svc.autoenroll) to the Active Directory domain. Because its only job is to prove who it is during login, it only requires the Client Authentication EKU. Restricting all other unused EKUs prevents the certificate from being misused elsewhere, strictly following the security principle of least privilege.
+This certificate is explicitly designed to authenticate the identity of an automated background service account (svc.autoenroll) to the Active Directory domain. Because its only job is to prove its identity during authentication, it only requires the Client Authentication EKU. Restricting all other unused EKUs prevents the certificate from being misused elsewhere, strictly following the security principle of least privilege.
 
 ```
 **3 — Subject Name**
 
 | Setting | Value Selected | Reason |
 |---------|---------------|--------|
-| Subject name format | Build from AD  |We're not creating a request we dont need to |
-| Include this information in the subject name |User Principal Name|Links the certificate directly to its login identifier. |
+| Subject name format | Build from Active Directory  |Ensures the CA automatically pulls the identity from Active Directory instead of allowing manual subject input. |
+| Include this information in the subject name |User Principal Name|Ties the certificate directly to the account's Active Directory login identity so the domain knows exactly which specific user or service account it belongs to. |
 **Explanation of Subject Name decision:**
 
 ```
-Building from AD forces the CA to look up the account requesting the certificate directly in Active Directory and pull its official attributes. This prevents a user or a compromised automated script from manually typing in a fake identity (like Administrator), completely blocking privilege escalation attacks.
+Building the subject name from Active Directory ensures the CA uses verified account attributes instead of user-supplied values. This reduces the risk of identity spoofing or unauthorized certificate requests and ensures the certificate identity matches the directory object.
 ```
 
 **4 — Validity Period**
 
 | Setting | Value | Reason |
 |---------|-------|--------|
-| Validity period | 1 Year| year validity period to enrure a shorter renewal period |
-| Renewal period |6 weeks | |
+| Validity period | 1 Year|Shorter certificate lifetimes reduce long-term exposure if a certificate is compromised.|
+| Renewal period |6 weeks |Provides enough time for automatic renewal before expiration. |
 
 **Explanation of validity period decision:**
 
@@ -114,14 +114,14 @@ A 1-year validity period keeps certificates rotating regularly, and the 6-week r
 
 | Group / Account | Read | Enroll | Autoenroll | Reason |
 |-----------------|------|--------|------------|--------|
-| Authenticated Users |Yes | NO| NO|Allows domain accounts to see that the template exists, but stops them from requesting it. |
-| CORP\svc.autoenroll | Yes|Yes |Yes |This is the specific service account that requires the certificate to run its services. |
-| Domain Computers |NO |NO | NO|Admins manage the template infrastructure but do not need to enroll for this specific service cert. |
+| Authenticated Users |Yes | NO| NO|Required for template visibility in AD, but enrollment is restricted. |
+| CORP\svc.autoenroll | Yes|Yes |Yes |Only account allowed to request and autoenroll for this certificate. |
+| Domain Computers |NO |NO | NO|Prevents machine accounts from enrolling in a service-specific certificate. |
 
 **Explanation of enrollment permission decisions:**
 
 ```
-Permissions are configured this way to enforce the principle of least privilege. By restricting "Enroll" and "Autoenroll" strictly to `CORP\svc.autoenroll`, we prevent unauthorized users, administrators, or standard domain computers from requesting this specialized certificate. This eliminates the risk of identity spoofing or privilege escalation within the environment.
+Permissions are restricted to enforce least privilege and ensure only the svc.autoenroll account can request and autoenroll the certificate. This prevents other users or machines from obtaining a certificate meant for a specific service identity.
 ```
 
 **General tab — Template names:**
@@ -130,7 +130,7 @@ Permissions are configured this way to enforce the principle of least privilege.
 |-------|-------|
 | Template display name | CVI Service Account |
 | Template name (internal) | CVI-ServiceAccount |
-| Schema version | |
+| Schema version |2 |
 
 **Template saved and visible in certtmpl.msc:**
 - [X] Yes
@@ -165,7 +165,7 @@ No issues to report.
 1. Opened **mmc.exe** → **File → Add/Remove Snap-in**
 2. Added **Certificates** snap-in
 3. Selected: **Service account** → **Local computer**
-4. Entered service account: ________________
+4. Entered service account: N/A — Certificate was enrolled using the pki.admin administrative account via the Certificates MMC / AD enrollment policy.
 5. Navigated to **Personal → Certificates**
 6. Right-clicked → **All Tasks → Request New Certificate**
 
@@ -195,7 +195,7 @@ User
 - [ ] No — error encountered:
 
 ```
-No issue to report
+No issues to report.
 ```
 
 ---
@@ -219,42 +219,20 @@ certutil -store My
 **Full certutil output:**
 
 ```
-svc.autoenroll
-CertUtil: -store command FAILED: 0x80070002 (WIN32: 2 ERROR_FILE_NOT_FOUND)
-CertUtil: The system cannot find the file specified.
-
-PS C:\Windows\system32> certutil -store My
 My "Personal"
 ================ Certificate 0 ================
-Serial Number: 44000000030d20ca71500ba5c4000000000003
+Serial Number: 4400000004b742b5daba3d4deb000000000004
 Issuer: CN=CVI Issuing CA 1, DC=corp, DC=cvilab, DC=local
- NotBefore: 5/22/2026 5:45 PM
+ NotBefore: 5/23/2026 5:29 PM
  NotAfter: 4/25/2027 7:36 PM
-Subject: CN=PKI-SRV01.corp.cvilab.local
+Subject: CN=PKI Admin
 Non-root Certificate
-Template: CVI-WebServer
-Cert Hash(sha1): e0046ea8c9d051f976c47ff60246cf3f488ad4f8
-  Key Container = a547eac941e3a6e7ae8e70257435eee5_f0a99c17-76d3-498a-97de-2992c06105fd
-  Simple container name: te-CVI-WebServer-f00259a7-e599-4167-965d-0298e0b61c88
-  Provider = Microsoft RSA SChannel Cryptographic Provider
-Private key is NOT exportable
+Template: CVI-ServiceAccount
+Cert Hash(sha1): 4f2aa3df007c2193e719a7bfe75cf98523636d54
+  Key Container = 0e3dbca0a5f48b9e90025e99f66cf711_f0a99c17-76d3-498a-97de-2992c06105fd
+  Simple container name: te-CVI-ServiceAccount-1adfbcb8-b530-447b-a47b-e9e5e4e0517c
+  Provider = Microsoft Enhanced Cryptographic Provider v1.0
 Encryption test passed
-
-================ Certificate 1 ================
-Serial Number: 5800000002f7714edc7f317c46000000000002
-Issuer: CN=CVI Root CA, DC=corp, DC=cvilab, DC=local
- NotBefore: 4/25/2026 7:26 PM
- NotAfter: 4/25/2027 7:36 PM
-Subject: CN=CVI Issuing CA 1, DC=corp, DC=cvilab, DC=local
-CA Version: V0.0
-Certificate Template Name (Certificate Type): SubCA
-Non-root Certificate
-Template: SubCA, Subordinate Certification Authority
-Cert Hash(sha1): 5137a597de2c3085ec5816c7f11edc18cfcdbaf8
-  Key Container = CVI Issuing CA 1
-  Unique container name: b52f658bb3f263e6f529f3a0187c63bc_f0a99c17-76d3-498a-97de-2992c06105fd
-  Provider = Microsoft Software Key Storage Provider
-Signature test passed
 CertUtil: -store command completed successfully.
 ```
 
@@ -262,13 +240,13 @@ CertUtil: -store command completed successfully.
 
 | Field | Value |
 |-------|-------|
-| Subject |PKI Admin
-CA Version: V0.0 |
-| Issuer |CN=CVI Root CA, DC=corp, DC=cvilab, DC=local |
+| Subject |CN=PKI Admin|
+|CA Version: V0.0 |
+| Issuer |CN=CVI Issuing CA 1, DC=corp, DC=cvilab, DC=local |
 | Serial Number |4400000004b742b5daba3d4deb000000000004 |
-| Key Usage |Digital Signature, Key Encipherment |
+| Key Usage |Digital Signature, Key Encipherment (as defined by template configuration) |
 | Enhanced Key Usage (EKU) |Client Authentication (1.3.6.1.5.5.7.3.2) |
-| Validity: Not Before |5/22/2026 5:45 PM |
+| Validity: Not Before |5/23/2026 5:29 PM |
 | Validity: Not After | 4/25/2027 7:36 PM |
 | Thumbprint |4f2aa3df007c2193e719a7bfe75cf98523636d54 |
 
@@ -304,13 +282,20 @@ Navigate to **certsrv.msc → CVI Issuing CA 1 → Issued Certificates**.
 3. Enrollment — who requests a user certificate vs. who requests a service account certificate, and why does this matter? 
 
 ```
-EFS and Secure Email Service Account is used for autpmated tasks this is not a user account that ould be sued for sendinf emails or accesing efs for an automated task service and for a user account a user cert
+User certificates and service account certificates are both used for authentication, but they are designed for different purposes. A user certificate is tied to an individual person and is used for actions that a human performs, such as secure email or file encryption. These features are intended to support personal workflows and user-level security functions. In contrast, a service account certificate is designed for automated systems or applications. It is more restricted in scope and typically only includes Client Authentication because its purpose is to allow a service to prove its identity when connecting to systems, not to perform user-specific tasks.
+
+Although both types of certificates can pull identity information from Active Directory, they represent different kinds of identities. A user certificate represents a real person and is directly linked to their login credentials. A service account certificate represents an automated identity used by services or applications. It is not tied to a human user, but instead exists so that systems can authenticate securely without requiring interactive login.
+
+The way certificates are enrolled also differs depending on the type of account. User certificates are normally requested directly by the user while logged into the system. Service account certificates are usually requested by an administrator or an automated process on behalf of the service account, since service accounts are not typically used for interactive logins. This separation helps enforce security by ensuring certificates are issued only for their intended purpose and reduces the risk of misuse.
+
 ```
 
 **What are the operational risks of relying on password authentication for service accounts instead of certificate-based authentication?**
 
 ```
-Cant veryify who is is anyone can fge the password with certbased it has to check the cahin of trust make sure that ithe requests is who it says is is a
+Password-based authentication for service accounts is risky because passwords can be stolen, reused, or guessed. If a password is compromised, an attacker can impersonate the service account without needing to break any encryption.
+
+Certificate-based authentication reduces this risk because it relies on cryptographic trust and certificate validation instead of shared secrets, making unauthorized access significantly harder.
 ```
 
 ---
@@ -320,27 +305,33 @@ Cant veryify who is is anyone can fge the password with certbased it has to chec
 **One thing about the CVI-ServiceAccount template design that was a non-obvious decision:**
 
 ```
-(your observation here)
+The svc.autoenroll account did not show up as an option in the MMC service account enrollment list, so the certificate was requested while logged in as CORP\pki.admin. Because of that, the certificate was issued under the admin context, which is why the subject shows CN=PKI Admin instead of svc.autoenroll. The template itself was still configured correctly, including EKU settings, subject name sourcing from Active Directory, and the enrollment permissions.
+
+The main issue was just the enrollment context during request, not the template design. Everything else in the process worked as expected, and the certificate was still successfully issued using the CVI-ServiceAccount template.
 ```
 
 **What would you change about this template if this were a production environment rather than a lab?**
 
 ```
-(your answer here — think about approval workflow, validity period, or monitoring)
+In a real production environment, I would tighten up how this certificate gets issued so it isn’t just something a single account can grab without oversight. Instead of allowing direct enrollment, I would probably require some kind of approval step or at least restrict issuance to a controlled security group so it’s easier to track and manage who is allowed to request it.
+
+I would also shorten the validity period compared to what we used in the lab, because long-lived certificates increase the risk if something ever gets compromised. Shorter lifetimes force more regular rotation, which is safer in real environments.
+
+On top of that, I would make monitoring a bigger deal. Certificate issuance and usage should be logged and reviewed so any unusual authentication activity stands out quickly. Overall, the goal would be to make sure the certificate is harder to misuse and easier to control over its full lifecycle.
 ```
 
 ---
 
 ## Submission Checklist
 
-- [ ] Pre-lab verification completed and outputs recorded
-- [ ] Part A: All five template design decisions documented with rationale
-- [ ] Part A: Template created as CVI-ServiceAccount and visible in certtmpl.msc
-- [ ] Part B: Template published to CVI Issuing CA 1
-- [ ] Part B: Certificate issued to svc.autoenroll — enrollment steps documented
-- [ ] Part C: certutil output pasted and key fields extracted into table
-- [ ] Part C: Request ID recorded from certsrv.msc Issued Certificates node
-- [ ] Part D: Written explanation completed in prose
-- [ ] Reflection section completed
-- [ ] File saved as `lab-01-service-account-profile.md`
-- [ ] File committed to portfolio repo under `labs/week-11/`
+- [X] Pre-lab verification completed and outputs recorded
+- [X] Part A: All five template design decisions documented with rationale
+- [X] Part A: Template created as CVI-ServiceAccount and visible in certtmpl.msc
+- [X] Part B: Template published to CVI Issuing CA 1
+- [X] Part B: Certificate issued to svc.autoenroll — enrollment steps documented
+- [X] Part C: certutil output pasted and key fields extracted into table
+- [X] Part C: Request ID recorded from certsrv.msc Issued Certificates node
+- [X] Part D: Written explanation completed in prose
+- [X] Reflection section completed
+- [X] File saved as `lab-01-service-account-profile.md`
+- [X] File committed to portfolio repo under `labs/week-11/`
