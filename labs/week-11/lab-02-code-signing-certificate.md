@@ -40,7 +40,7 @@ Open the Certificate Templates console: **Run → certtmpl.msc**
 | Key Usage | Included? | Reason |
 |-----------|-----------|--------|
 | Digital Signature |Yes |Used to digitally sign code so systems can verify the authenticity and integrity of the signed file. |
-| Key Encipherment | No  |Not related to code singin as this is used in TLS to protect sesssion keys |
+| Key Encipherment | No  |Not related to code signing as this is used in TLS to protect sesssion keys |
 | Non-Repudiation |No |For a code signing certificate, the Digital Signature key usage is sufficient because it enables the cryptographic signing operation required for Authenticode. The Code Signing EKU already restricts the certificate’s intended purpose to code signing, so Non-Repudiation is not strictly necessary. |
 
 **Explanation of Key Usage decision:**
@@ -75,7 +75,7 @@ The Code Signing EKU restricts the certificate’s intended usage to software an
 | Setting | Value | Reason |
 |---------|-------|--------|
 | Validity period |1 year |Limits the exposure window if the certificate or private key is compromised and ensures periodic revalidation of trust and enrollment policies.|
-| Enroll — account(s) granted |Pki.Admin | This is the account I am using and need to be able to enroll to cretate and publish the cerrtitficats|
+| Enroll — account(s) granted |Pki.Admin | This is the account I am using and need to be able to enroll to create and publish the certificates|
 | Autoenroll |No |Code signing certificates are high-trust certificates and should require deliberate enrollment rather than automatic issuance. |
 
 **Template names:**
@@ -306,7 +306,7 @@ SignerCertificate                         Status                                
 
 **Status after modification:**
 - [ ] HashMismatch
-- [X] Other — describe: The status is "NotSigned" because the file contents were changed after signing, causing the original digital signature to fail validation due to a hash mismatch.
+- [X] Other — describe: After modifying the signed script, the digital signature was no longer valid. In this environment, the system reported the file as NotSigned rather than HashMismatch, indicating that the signature validation was broken by the change to the file contents or structure.
 ---
 
 ## Part D — Written Explanation
@@ -324,7 +324,7 @@ The Code Signing EKU is enforced at the application and operating system trust l
 Cover: what the signature covers (the code hash), what the mismatch status means, and why this matters for software integrity in a production environment.
 
 ```
-The hash mismatch test demonstrated that the digital signature protects the integrity of the file contents. When the script was modified after signing, the recalculated file hash no longer matched the original signed hash stored in the signature. This invalidated the signature because the contents had changed after signing. In a production environment, this is important because it helps users and systems detect tampering or unauthorized modification of software before execution.
+The hash mismatch test showed that a digital signature protects the integrity of the file contents. After the script was modified following signing, the system detected that the file no longer matched the original signed state, and the signature was no longer valid. In this lab environment, the result appeared as "NotSigned" instead of a clear "HashMismatch," but the outcome was the same: the file had been altered after signing and could no longer be trusted. This is important in real systems because it prevents modified or tampered scripts from being treated as legitimate software.
 ```
 
 **Should the CVI-CodeSigning template require CA certificate manager approval in a production environment? Why or why not?**
@@ -363,7 +363,7 @@ One thing I would want to understand better is how to configure and integrate a 
 - [X] Part C: Script signed and Set-AuthenticodeSignature output pasted
 - [X] Part C: Get-AuthenticodeSignature output = Valid, pasted
 - [X] Part C: Timestamp check output pasted
-- [X] Part C: Hash mismatch test performed and output pasted (Status = HashMismatch)
+- [X] Part C: Hash mismatch test performed and output pasted (Status = HashMismatch) (signature invalidated after modification)
 - [X] Part D: Written explanation in prose — EKU enforcement and hash mismatch
 - [X] Reflection completed
 - [X] File saved as `lab-02-code-signing-certificate.md`
