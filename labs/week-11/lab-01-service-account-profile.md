@@ -305,9 +305,11 @@ Certificate-based authentication reduces this risk because it relies on cryptogr
 **One thing about the CVI-ServiceAccount template design that was a non-obvious decision:**
 
 ```
-The svc.autoenroll account did not show up as an option in the MMC service account enrollment list, so the certificate was requested while logged in as CORP\pki.admin. Because of that, the certificate was issued under the admin context, which is why the subject shows CN=PKI Admin instead of svc.autoenroll. The template itself was still configured correctly, including EKU settings, subject name sourcing from Active Directory, and the enrollment permissions.
+One non-obvious design decision was assuming that service accounts would be selectable and enrollable through the MMC service account context in the same way user accounts are. I designed the template correctly with AD-based subject naming and restricted enrollment to svc.autoenroll, but I did not account for how service accounts may not always appear as selectable identities in the certificate enrollment UI depending on how the snap-in context is configured.
 
-The main issue was just the enrollment context during request, not the template design. Everything else in the process worked as expected, and the certificate was still successfully issued using the CVI-ServiceAccount template.
+This exposed an important gap between template design and enrollment workflow: even when the template is properly configured, the identity used during enrollment depends on the context the certificate is requested from. Because of this, the certificate ended up being issued under the pki.admin context, which affected the subject identity even though the template itself was correct.
+
+The key takeaway is that certificate template design is only part of the system—enrollment method and context also determine the final identity outcome.
 ```
 
 **What would you change about this template if this were a production environment rather than a lab?**
@@ -328,7 +330,7 @@ On top of that, I would make monitoring a bigger deal. Certificate issuance and 
 - [X] Part A: All five template design decisions documented with rationale
 - [X] Part A: Template created as CVI-ServiceAccount and visible in certtmpl.msc
 - [X] Part B: Template published to CVI Issuing CA 1
-- [X] Part B: Certificate issued to svc.autoenroll — enrollment steps documented
+- [X] Part B: Certificate issued (enrolled using pki.admin due to svc.autoenroll not being selectable in the service account enrollment context in MMC)
 - [X] Part C: certutil output pasted and key fields extracted into table
 - [X] Part C: Request ID recorded from certsrv.msc Issued Certificates node
 - [X] Part D: Written explanation completed in prose
