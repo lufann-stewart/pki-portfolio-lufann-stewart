@@ -1,7 +1,7 @@
 # Lab 01: Build a Certificate Profile for a Service Account
 
 Lufann Stewart  
-May 23, 2026  
+May 23, 2026   
 **Phase:** 2 | **Week:** 11  
 **Submission Path:** `labs/week-11/lab-01-service-account-profile.md`
 
@@ -9,53 +9,72 @@ May 23, 2026
 
 ## Pre-Lab Verification
 
-Run the following on PKI-SRV01 before starting. Do not proceed until all checks pass.
-
-```powershell
-# Check 1 — CA service running
-Get-Service -Name CertSvc
-
-# Check 2 — CA responding
-certutil -ping
-
-# Check 3 — Confirm svc.autoenroll account exists in AD
-Get-ADUser -Identity svc.autoenroll -Properties UserPrincipalName | Select-Object Name, UserPrincipalName
-```
-
-**All checks passed:**
-- [X] Yes
-- [ ] No — describe the issue and how you resolved it:
-
-```
-No issues to report.
-```
+If you can log into PKI-SRV01 as **CORP\pki.admin**, you are communicating with DC01 and the environment is ready. Proceed to Part A.
 
 ---
 
 ## Part A — Design the CVI-ServiceAccount Template
 
-Open the Certificate Templates console: **Run → certtmpl.msc**
+### Step 1 — Open the Certificate Templates Console
 
-### Template Duplication
+1. Press **Win + R**, type `certtmpl.msc`, and press **Enter**
+2. The Certificate Templates console opens, showing all templates installed on this CA
+3. Scroll through the list to get familiar with what already exists
 
-**Source template duplicated:** 
-  > User
+### Step 2 — Duplicate the User Template
+
+1. Scroll down to find the **User** template in the list
+2. Right-click **User** → select **Duplicate Template**
+3. A new template Properties window opens — this is your working copy
+
+> **Why User?** The svc.autoenroll account is an AD user-type object, not a machine account. The User template is the correct baseline. The Computer template is for machine accounts and includes Server Authentication EKU, which is not appropriate for a service account.
+
+**Source template duplicated:** User
 
 **Reason for choosing this source template:**
 
 ```
-Use the User template — not Computer. Here's why: the certificate is being issued to a service account, which is an AD user object (svc.autoenroll). The User template gives you the right starting point for subject name sourcing from AD user attributes. The Computer template is for machine identity (DNS-based subject names).
+The certificate is being issued to a service account, which is an AD user object (svc.autoenroll). The User template gives you the right starting point for subject name sourcing from AD user attributes. The Computer template is for machine identity (DNS-based subject names).
 ```
+
+### Step 3 — Set Compatibility Settings
+
+1. Click the **Compatibility** tab
+2. Set **Certification Authority** to: `Windows Server 2012 R2`
+3. Set **Certificate Recipient** to: `Windows 8.1 / Windows Server 2012 R2`
+4. Click **OK** on any informational dialog that appears
 
 **Compatibility settings selected:**
 - Certification Authority: Windows Server 2012 R2
 - Certificate Recipient: Windows 8.1 / Windows Server 2012 R2
 
-### Design Decisions
+### Step 4 — Set the Template Name (General Tab)
 
-Document every setting with a reason. This is the design record for the template.
+1. Click the **General** tab
+2. Change **Template display name** to: `CVI Service Account`
+3. The **Template name** (internal name, no spaces) will auto-fill as `CVI-ServiceAccount` — confirm this
+4. Note the **Schema version** shown at the bottom
 
-**1 — Key Usage**
+**General tab — Template names:**
+
+| Field | Value |
+|-------|-------|
+| Template display name | CVI Service Account |
+| Template name (internal) | CVI-ServiceAccount |
+| Schema version |4 |
+### Step 5 — Configure Key Usage
+
+1. Click the **Extensions** tab
+2. In the Extensions list, select **Key Usage** → click **Edit**
+3. In the Key Usage dialog:
+   - Check **Digital Signature**
+   - Uncheck **Key Encipherment** (if checked)
+   - Uncheck **Data Encipherment** (if checked)
+   - Uncheck **Non-Repudiation** (if checked)
+   - Check **Make this extension critical**
+4. Click **OK**
+
+Document what you set and why:
 
 | Key Usage | Included? | Reason |
 |-----------|-----------|--------|
@@ -70,7 +89,16 @@ Document every setting with a reason. This is the design record for the template
 I included Digital Signature because the certificate must prove the identity of the service account during authentication. I included Key Encipherment to support secure session key exchange during encrypted communications. These two usages are commonly required for client authentication certificates.
 ```
 
-**2 — Extended Key Usage (EKU)**
+### Step 6 — Configure Extended Key Usage (Application Policies)
+
+1. Still on the **Extensions** tab, select **Application Policies** → click **Edit**
+2. The User template comes with several EKUs pre-populated (Client Authentication, Encrypting File System, Secure Email). You need to remove all but one:
+   - Select **Encrypting File System** → click **Remove**
+   - Select **Secure Email** → click **Remove**
+   - Leave **Client Authentication** (1.3.6.1.5.5.7.3.2) — this is the only EKU needed
+3. Click **OK**
+
+Document your EKU decisions:
 
 | EKU | Included? | OID | Reason |
 |-----|-----------|-----|--------|
@@ -83,21 +111,36 @@ I included Digital Signature because the certificate must prove the identity of 
 
 ```
 This certificate is explicitly designed to authenticate the identity of an automated background service account (svc.autoenroll) to the Active Directory domain. Because its only job is to prove its identity during authentication, it only requires the Client Authentication EKU. Restricting all other unused EKUs prevents the certificate from being misused elsewhere, strictly following the security principle of least privilege.
-
 ```
-**3 — Subject Name**
+
+### Step 7 — Configure Subject Name
+
+1. Click the **Subject Name** tab
+2. Select **Build from this Active Directory information**
+3. Under **Subject name format**, select **User principal name (UPN)** from the dropdown
+4. Uncheck any other options under "Include this information in alternate subject name" that are not needed
+
+Document your settings:
 
 | Setting | Value Selected | Reason |
 |---------|---------------|--------|
 | Subject name format | Build from Active Directory  |Ensures the CA automatically pulls the identity from Active Directory instead of allowing manual subject input. |
 | Include this information in the subject name |User Principal Name|Ties the certificate directly to the account's Active Directory login identity so the domain knows exactly which specific user or service account it belongs to. |
+
 **Explanation of Subject Name decision:**
 
 ```
 Building the subject name from Active Directory ensures the CA uses verified account attributes instead of user-supplied values. This reduces the risk of identity spoofing or unauthorized certificate requests and ensures the certificate identity matches the directory object.
 ```
 
-**4 — Validity Period**
+### Step 8 — Set Validity Period
+
+1. Click the **General** tab (you may already be on it)
+2. Find the **Validity period** and **Renewal period** fields
+3. Set **Validity period** to `1` year (or 2 years — document your reasoning)
+4. Leave **Renewal period** at the default (6 weeks)
+
+> **Note:** The CA itself has a maximum validity setting. If you set 5 years here but certs issue for only 2, the CA's max is overriding your template. You can check with: `certutil -getreg ca\ValidityPeriod`
 
 | Setting | Value | Reason |
 |---------|-------|--------|
@@ -110,13 +153,24 @@ Building the subject name from Active Directory ensures the CA uses verified acc
 A 1-year validity period keeps certificates rotating regularly, and the 6-week renewal window gives Windows Autoenrollment enough time to replace them before they expire.
 ```
 
-**5 — Security Tab — Enrollment Permissions**
+### Step 9 — Set Enrollment Permissions (Security Tab)
+
+1. Click the **Security** tab
+2. You will see **Authenticated Users** and **Domain Admins** already listed
+3. Add svc.autoenroll manually:
+   - Click **Add**
+   - In the object picker, type `svc.autoenroll` and click **Check Names**
+   - Confirm the account resolves to `CORP\svc.autoenroll`, then click **OK**
+   - With **svc.autoenroll** selected in the list, check **Read**, **Enroll**, and **Autoenroll**
+4. Click **Apply**
+5. Review the permissions on all three entries and document them below
 
 | Group / Account | Read | Enroll | Autoenroll | Reason |
 |-----------------|------|--------|------------|--------|
 | Authenticated Users |Yes | NO| NO|Required for template visibility in AD, but enrollment is restricted. |
 | CORP\svc.autoenroll | Yes|Yes |Yes |Only account allowed to request and autoenroll for this certificate. |
-| Domain Computers |NO |NO | NO|Prevents machine accounts from enrolling in a service-specific certificate. |
+| Domain Admins |Yes |Yes |No |Domain Admins were given Read and Enroll permissions so administrators can access and manually request certificates if needed without automatically receiving them through autoenrollment.
+ |
 
 **Explanation of enrollment permission decisions:**
 
@@ -124,13 +178,10 @@ A 1-year validity period keeps certificates rotating regularly, and the 6-week r
 Permissions are restricted to enforce least privilege and ensure only the svc.autoenroll account can request and autoenroll the certificate. This prevents other users or machines from obtaining a certificate meant for a specific service identity.
 ```
 
-**General tab — Template names:**
+### Step 10 — Save the Template
 
-| Field | Value |
-|-------|-------|
-| Template display name | CVI Service Account |
-| Template name (internal) | CVI-ServiceAccount |
-| Schema version |2 |
+1. Click **OK** to close the Properties window and save the template
+2. Verify **CVI-ServiceAccount** now appears in the certtmpl.msc list
 
 **Template saved and visible in certtmpl.msc:**
 - [X] Yes
@@ -139,14 +190,14 @@ Permissions are restricted to enforce least privilege and ensure only the svc.au
 
 ## Part B — Publish the Template and Issue the Certificate
 
-### Publish the Template
+### Step 1 — Publish the Template to the CA
 
-**Steps performed on PKI-SRV01 as CORP\pki.admin:**
-
-1. Opened **certsrv.msc**
-2. Expanded **CVI Issuing CA 1** → right-clicked **Certificate Templates** → **New → Certificate Template to Issue**
-3. Selected **CVI-ServiceAccount** from the list
-4. Clicked **OK**
+1. Press **Win + R**, type `certsrv.msc`, and press **Enter**
+2. Expand **CVI Issuing CA 1** in the left pane
+3. Right-click **Certificate Templates** → **New** → **Certificate Template to Issue**
+4. In the Enable Certificate Templates dialog, scroll to find **CVI-ServiceAccount**
+5. Select it → click **OK**
+6. The template should appear in the Certificate Templates node within 30 seconds. If it doesn't, right-click the node → **Refresh**
 
 **CVI-ServiceAccount visible in Certificate Templates node:**
 - [X] Yes
@@ -158,30 +209,42 @@ No issues to report.
 
 ---
 
-### Request the Certificate for svc.autoenroll
+### Step 2 — Request the Certificate for svc.autoenroll
 
-**Steps performed:**
+> **Important:** svc.autoenroll is an AD user account, not a Windows service. The Certificates snap-in "Service account" option lists Windows system services only — svc.autoenroll will not appear there. Instead, use `runas` to open MMC running as the svc.autoenroll account.
 
-1. Opened **mmc.exe** → **File → Add/Remove Snap-in**
-2. Added **Certificates** snap-in
-3. Selected: **Service account** → **Local computer**
-4. Entered service account: N/A — Certificate was enrolled using the pki.admin administrative account via the Certificates MMC / AD enrollment policy.
-5. Navigated to **Personal → Certificates**
-6. Right-clicked → **All Tasks → Request New Certificate**
+1. Open **Command Prompt** or **PowerShell** as Administrator
+2. Run the following command:
+   ```
+   runas /user:CORP\svc.autoenroll mmc.exe
+   ```
+3. Enter the **svc.autoenroll password** when prompted
+4. A new MMC window opens — this window is running as svc.autoenroll
+5. In the new MMC window: **File → Add/Remove Snap-in**
+6. Select **Certificates** → click **Add**
+7. Choose **My user account** → click **Finish** → click **OK**
+8. Expand **Certificates (Current User)** → **Personal**
+
+> **Note:** If no certificates have been issued yet for this account, you will not see a **Certificates** folder under Personal — this is expected. Right-click **Personal** directly → **All Tasks** → **Request New Certificate**. Once the certificate is issued, the Certificates folder will appear automatically.
+
+9. Right-click **Personal** → **All Tasks** → **Request New Certificate**
+10. Click **Next** through the enrollment wizard
+11. Select **Active Directory Enrollment Policy** → click **Next**
+12. The CVI-ServiceAccount template should appear in the list. Check the box next to it
+13. Click **Enroll**
+14. Enrollment should complete immediately (Status: Succeeded). Click **Finish**
 
 **Enrollment wizard — enrollment policy selected:**
 
 ```
-Active Directory Enrollment Policy 
+Active Directory Enrollment Policy
 ```
 
 **Templates visible in the wizard:**
 
 ```
-Administrator
 Basic EFS
-CVI-ServiceAccount
-EFS REcovery Agent
+CVI Service Account
 User
 ```
 
@@ -202,59 +265,67 @@ No issues to report.
 
 ## Part C — Verify the Issued Certificate
 
-### Via certutil
+### Step 1 — Inspect the Certificate with certutil
 
-Run the following to inspect the service account certificate store:
-
-```powershell
-certutil -store -service svc.autoenroll My
-```
-
-Or, if the certificate was issued to the personal store under the current user context:
+Open **PowerShell** on PKI-SRV01 as CORP\pki.admin and run:
 
 ```powershell
 certutil -store My
 ```
 
+> If the certificate was enrolled via the runas MMC session, it will be in the svc.autoenroll user's personal store, not the pki.admin store. To view it, you can either re-open the runas MMC window, or check the CA's Issued Certificates node (Step 2 below) to confirm issuance.
+
 **Full certutil output:**
 
 ```
+PS C:\Users\pki.admin> certutil -user -store My
 My "Personal"
 ================ Certificate 0 ================
-Serial Number: 4400000004b742b5daba3d4deb000000000004
+Serial Number: 440000000911304cdb8a83f133000000000009
 Issuer: CN=CVI Issuing CA 1, DC=corp, DC=cvilab, DC=local
- NotBefore: 5/23/2026 5:29 PM
+ NotBefore: 5/28/2026 3:14 PM
  NotAfter: 4/25/2027 7:36 PM
-Subject: CN=PKI Admin
+Subject: CN=Svc Autoenroll, OU=Service Accounts, DC=corp, DC=cvilab, DC=local
 Non-root Certificate
-Template: CVI-ServiceAccount
-Cert Hash(sha1): 4f2aa3df007c2193e719a7bfe75cf98523636d54
-  Key Container = 0e3dbca0a5f48b9e90025e99f66cf711_f0a99c17-76d3-498a-97de-2992c06105fd
-  Simple container name: te-CVI-ServiceAccount-1adfbcb8-b530-447b-a47b-e9e5e4e0517c
+Template: CVI-ServiceAccount, CVI Service Account
+Cert Hash(sha1): 7bff83b595815dd3ec80e4e658b4b73cb67a7e1e
+  Key Container = ce9bd3f51b49e9f605ed02f7c971f605_f0a99c17-76d3-498a-97de-2992c06105fd
+  Simple container name: te-CVI-ServiceAccount-9f57fc06-547c-49c2-932d-7374d22c5bae
   Provider = Microsoft Enhanced Cryptographic Provider v1.0
 Encryption test passed
 CertUtil: -store command completed successfully.
+PS C:\Users\pki.admin>
+
+
 ```
 
 **From the certutil output — record the following:**
 
 | Field | Value |
 |-------|-------|
-| Subject |CN=PKI Admin|
-|CA Version: V0.0 |
-| Issuer |CN=CVI Issuing CA 1, DC=corp, DC=cvilab, DC=local |
-| Serial Number |4400000004b742b5daba3d4deb000000000004 |
-| Key Usage |Digital Signature, Key Encipherment (as defined by template configuration) |
+| Subject |CN = Svc Autoenroll
+OU = Service Accounts
+DC = corp
+DC = cvilab
+DC = local |
+| Issuer |CN = CVI Issuing CA 1
+DC = corp
+DC = cvilab
+DC = local |
+| Serial Number |440000000911304cdb8a83f133000000000009 |
+| Key Usage |Digital Signature, Key Encipherment (a0) |
 | Enhanced Key Usage (EKU) |Client Authentication (1.3.6.1.5.5.7.3.2) |
-| Validity: Not Before |5/23/2026 5:29 PM |
-| Validity: Not After | 4/25/2027 7:36 PM |
-| Thumbprint |4f2aa3df007c2193e719a7bfe75cf98523636d54 |
+| Validity: Not Before | ‎Thursday, ‎May ‎28, ‎2026 3:14:09 PM|
+| Validity: Not After |‎Sunday, ‎April ‎25, ‎2027 7:36:58 PM |
+| Thumbprint |7bff83b595815dd3ec80e4e658b4b73cb67a7e1e |
 
----
+### Step 2 — Confirm in certsrv.msc and Record the Request ID
 
-### In certsrv.msc — Issued Certificates Node
-
-Navigate to **certsrv.msc → CVI Issuing CA 1 → Issued Certificates**.
+1. Open **certsrv.msc** (Press Win + R → type `certsrv.msc`)
+2. Expand **CVI Issuing CA 1** → click **Issued Certificates**
+3. Find the svc.autoenroll certificate in the list (sort by Request ID or Requester Name)
+4. Double-click it to open and confirm it shows the CVI-ServiceAccount template
+5. Record the values below
 
 **Certificate visible in Issued Certificates node:**
 - [X] Yes
@@ -263,23 +334,25 @@ Navigate to **certsrv.msc → CVI Issuing CA 1 → Issued Certificates**.
 
 | Column | Value |
 |--------|-------|
-| Request ID | 4|
-| Requester Name |CORP/pki.admin |
-| Certificate Template |CVI-ServiceAccount |
-| Issued Common Name |PKI-SRV01.corp.cvilab.local |
-| Certificate Expiration Date |4/25/2027 7:36 PM |
+| Request ID |9 |
+| Requester Name | |
+| Certificate Template | |
+| Issued Common Name | |
+| Certificate Expiration Date | |
 
-> **Save this Request ID.** You will use it in Week 12 if you revoke this certificate, and in Lab 03 for the comparison exercise.
+> **Save this Request ID.** You will use it in Week 12 to revoke this certificate, and in Lab 03 for the comparison exercise.
 
 ---
 
 ## Part D — Written Explanation
 
+Answer the following questions in plain prose paragraphs — not bullet points. Aim for 2–3 paragraphs total across the two questions.
+
 **What makes a service account certificate different from a user certificate? Address the following:**
 
-1. Key difference in EKU — what does a user certificate include that the service account certificate should not, and why? 
+1. Key difference in EKU — what does a user certificate include that the service account certificate should not, and why?
 2. Subject Name source — both use "Build from AD," but what is different about the identity being represented?
-3. Enrollment — who requests a user certificate vs. who requests a service account certificate, and why does this matter? 
+3. Enrollment — who requests a user certificate vs. who requests a service account certificate, and why does this matter?
 
 ```
 User certificates and service account certificates are both used for authentication, but they are designed for different purposes. A user certificate is tied to an individual person and is used for actions that a human performs, such as secure email or file encryption. These features are intended to support personal workflows and user-level security functions. In contrast, a service account certificate is designed for automated systems or applications. It is more restricted in scope and typically only includes Client Authentication because its purpose is to allow a service to prove its identity when connecting to systems, not to perform user-specific tasks.
@@ -287,7 +360,6 @@ User certificates and service account certificates are both used for authenticat
 Although both types of certificates can pull identity information from Active Directory, they represent different kinds of identities. A user certificate represents a real person and is directly linked to their login credentials. A service account certificate represents an automated identity used by services or applications. It is not tied to a human user, but instead exists so that systems can authenticate securely without requiring interactive login.
 
 The way certificates are enrolled also differs depending on the type of account. User certificates are normally requested directly by the user while logged into the system. Service account certificates are usually requested by an administrator or an automated process on behalf of the service account, since service accounts are not typically used for interactive logins. This separation helps enforce security by ensuring certificates are issued only for their intended purpose and reduces the risk of misuse.
-
 ```
 
 **What are the operational risks of relying on password authentication for service accounts instead of certificate-based authentication?**
@@ -305,11 +377,11 @@ Certificate-based authentication reduces this risk because it relies on cryptogr
 **One thing about the CVI-ServiceAccount template design that was a non-obvious decision:**
 
 ```
-One non-obvious design decision was assuming that service accounts would be selectable and enrollable through the MMC service account context in the same way user accounts are. I designed the template correctly with AD-based subject naming and restricted enrollment to svc.autoenroll, but I did not account for how service accounts may not always appear as selectable identities in the certificate enrollment UI depending on how the snap-in context is configured.
+One non-obvious design consideration was understanding that certificate enrollment behavior depends heavily on the identity context used during the request. At first, I assumed enrollment could be done from the administrative MMC session without affecting the final certificate identity, but during implementation I validated that the enrollment context directly determines the subject information issued by the CA.
 
-This exposed an important gap between template design and enrollment workflow: even when the template is properly configured, the identity used during enrollment depends on the context the certificate is requested from. Because of this, the certificate ended up being issued under the pki.admin context, which affected the subject identity even though the template itself was correct.
+By correcting the process and enrolling the certificate using the svc.autoenroll account via runas, the certificate was issued with the correct subject identity tied to the service account rather than the administrative account. This reinforced the importance of matching the enrollment context to the intended identity when working with certificate templates.
 
-The key takeaway is that certificate template design is only part of the system—enrollment method and context also determine the final identity outcome.
+The key takeaway is that even when a template is correctly configured with Active Directory-based subject naming, the final certificate identity still depends on the account used during enrollment, making proper execution of the workflow just as important as the template design itself.
 ```
 
 **What would you change about this template if this were a production environment rather than a lab?**
@@ -326,11 +398,13 @@ On top of that, I would make monitoring a bigger deal. Certificate issuance and 
 
 ## Submission Checklist
 
-- [X] Pre-lab verification completed and outputs recorded
-- [X] Part A: All five template design decisions documented with rationale
-- [X] Part A: Template created as CVI-ServiceAccount and visible in certtmpl.msc
+- [X] Pre-lab verification completed
+- [X] Part A: Template duplicated from the User template
+- [X] Part A: All five design decisions (Key Usage, EKU, Subject Name, Validity, Security) documented with rationale
+- [X] Part A: Template saved as CVI-ServiceAccount and visible in certtmpl.msc
 - [X] Part B: Template published to CVI Issuing CA 1
-- [X] Part B: Certificate issued (enrolled using pki.admin due to svc.autoenroll not being selectable in the service account enrollment context in MMC)
+- [X] Part B: Certificate requested via runas /user:CORP\svc.autoenroll mmc.exe
+- [X] Part B: Certificate issued — enrollment outcome documented
 - [X] Part C: certutil output pasted and key fields extracted into table
 - [X] Part C: Request ID recorded from certsrv.msc Issued Certificates node
 - [X] Part D: Written explanation completed in prose
