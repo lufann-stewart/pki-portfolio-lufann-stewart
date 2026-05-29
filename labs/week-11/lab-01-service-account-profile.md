@@ -61,7 +61,7 @@ The certificate is being issued to a service account, which is an AD user object
 |-------|-------|
 | Template display name | CVI Service Account |
 | Template name (internal) | CVI-ServiceAccount |
-| Schema version |4 |
+| Schema version | 4 |
 ### Step 5 — Configure Key Usage
 
 1. Click the **Extensions** tab
@@ -303,15 +303,8 @@ PS C:\Users\pki.admin>
 
 | Field | Value |
 |-------|-------|
-| Subject |CN = Svc Autoenroll
-OU = Service Accounts
-DC = corp
-DC = cvilab
-DC = local |
-| Issuer |CN = CVI Issuing CA 1
-DC = corp
-DC = cvilab
-DC = local |
+| Subject | CN=Svc Autoenroll, OU=Service Accounts, DC=corp, DC=cvilab, DC=local |
+| Issuer | CN=CVI Issuing CA 1, DC=corp, DC=cvilab, DC=local |
 | Serial Number |440000000911304cdb8a83f133000000000009 |
 | Key Usage |Digital Signature, Key Encipherment (a0) |
 | Enhanced Key Usage (EKU) |Client Authentication (1.3.6.1.5.5.7.3.2) |
@@ -335,10 +328,10 @@ DC = local |
 | Column | Value |
 |--------|-------|
 | Request ID |9 |
-| Requester Name | |
-| Certificate Template | |
-| Issued Common Name | |
-| Certificate Expiration Date | |
+| Requester Name |CORP\svc.autoenroll |
+| Certificate Template |"1.3.6.1.4.1.311.21.8.15886664.4298044.8996776.14853544.7902291.169.16756659.8111121" CVI Service Account |
+| Issued Common Name |Svc Autoenroll |
+| Certificate Expiration Date |4/25/2027 7:36 PM |
 
 > **Save this Request ID.** You will use it in Week 12 to revoke this certificate, and in Lab 03 for the comparison exercise.
 
