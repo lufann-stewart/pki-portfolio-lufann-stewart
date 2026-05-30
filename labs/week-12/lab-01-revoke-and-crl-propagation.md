@@ -1,7 +1,7 @@
 # Lab 01: Revoke a Certificate and Observe CRL Propagation
 
-Lufann Stewart
-May 30, 2026  
+Lufann Stewart  
+May 30, 2026    
 **Phase:** 2 | **Week:** 12  
 **Submission Path:** `labs/week-12/lab-01-revoke-and-crl-propagation.md`
 
