@@ -28,7 +28,7 @@ If you can log into PKI-SRV01 as **CORP\pki.admin**, you are communicating with 
 
 > **Why Code Signing and not User?** The built-in Code Signing template already has the correct Key Usage (Digital Signature only) and EKU (Code Signing only) pre-configured. Starting from User would require removing multiple EKUs and introduces the risk of leaving incorrect settings in place.
 
-**Source template duplicated:** User
+**Source template duplicated:** Code Signing
 
 ### Step 3 — Set Compatibility Settings
 
@@ -100,8 +100,8 @@ The Code Signing EKU restricts the certificate’s intended usage to software an
 
 | Setting | Value | Reason |
 |---------|-------|--------|
-| Subject name format |Common Name (CN) |Pulls the requester's display name from Active Directory to tie the signature to a specific identity |
-| Subject built from |Built form Active Directory | AD provides the identity attributes used to build the subject.|
+| Subject name format |User Principal Name (UPN) |Used to build subject identity from AD; in this lab the resulting subject resolves to CN=PKI Admin based on enrollment behavior.|
+| Subject built from |Built from Active Directory | AD provides the identity attributes used to build the subject.|
 
 ### Step 8 — Set Validity Period and Enrollment Permissions
 
@@ -121,7 +121,7 @@ The Code Signing EKU restricts the certificate’s intended usage to software an
 | Setting | Value | Reason |
 |---------|-------|--------|
 | Validity period |1 year |Limits the exposure window if the certificate or private key is compromised and ensures periodic revalidation of trust and enrollment policies.|
-| Enroll — account(s) granted |Pki.Admin | This is the account I am using and need to be able to enroll to create and publish the certificates|
+| Enroll — account(s) granted |pki.Admin and Domain Admins | Limits certificate enrollment to approved administrative accounts to reduce unnecessary certificate issuance and ensure only trusted users can request code-signing certificates.
 | Autoenroll |No |Code signing certificates are high-trust certificates and should require deliberate enrollment rather than automatic issuance. |
 ### Step 9 — Save the Template
 
@@ -350,7 +350,7 @@ Get-AuthenticodeSignature -FilePath "C:\Scripts\Test-CVI.ps1"
 ```
 
 **Get-AuthenticodeSignature output after modification:**
-
+Test 1 — Append Modification (Breaks signature structure) 
 ```
 Directory: C:\Scripts
 
@@ -359,10 +359,20 @@ SignerCertificate                         Status                                
 -----------------                         ------                                                                                                      ----                                                                                                       
                                           NotSigned                                                                                                   Test-CVI.ps1
 ```
+Test 2 — In-place Content Modification (Triggers hash mismatch)
+```
+Directory: C:\Scripts
 
+
+SignerCertificate                         Status                                                                                                      Path                                                                                                       
+-----------------                         ------                                                                                                      ----                                                                                                       
+7FA17DBE13F3C0F3FF3E60AF8528C4EDB48D96CE  HashMismatch                                                                                                Test-CVI.ps1                                                                                               
+
+
+```
 **Status after modification:**
-- [ ] HashMismatch
-- [X] Other — describe: After modifying the signed script, the digital signature was no longer valid. In this environment, the system reported the file as NotSigned rather than HashMismatch, indicating that the signature validation was broken by the change to the file contents or structure.
+- [X] HashMismatch
+- [ ] Other — describe:
 
 ---
 
@@ -383,13 +393,17 @@ The Code Signing EKU is enforced at the application and operating system trust l
 Cover: what the signature covers (the code hash), what the mismatch status means, and why this matters for software integrity in a production environment.
 
 ```
-During my testing, I realized that the exact way the script is edited changes how PowerShell reports the signature failure.
+The hash mismatch test showed that a digital signature protects the full integrity of a file’s contents, but the way Windows reports a failure depends on how the file gets changed.
 
-When I used the standard Add-Content command, it appended the text to the very bottom of the file. This ended up breaking the formatting and structure of the embedded signature block itself, causing Windows to just parse the file as NotSigned.
+When I used the Add-Content command from the lab, it added text to the very bottom of the script. Since PowerShell scripts store the Authenticode signature at the end of the file, appending anything after it effectively broke the signature structure completely. At that point, Windows couldn’t even interpret a valid signature anymore, so it showed the file as NotSigned instead of HashMismatch.
 
-To actually see the expected HashMismatch behavior, I tried a second method using an in-place string replacement. This changed a piece of text inside the actual script body without touching the signature block at the bottom. Because the signature block was still intact but the data it was protecting had changed, the system successfully caught the modification and explicitly flagged it as a HashMismatch.
+To see the actual mismatch behavior, I ran a second test where I changed the content inside the script itself without touching the signature block:
 
-In a real production environment, both tests prove the exact same security concept: any tampering after the fact completely destroys the trust chain and stops the script from running.
+(Get-Content "C:\Scripts\Test-CVI.ps1") -replace 'pki.admin', 'tampered.user' | Set-Content "C:\Scripts\Test-CVI.ps1"
+
+In this case, the signature was still readable, but the underlying file content no longer matched the original signed hash. That’s why Windows was able to detect the difference and return HashMismatch.
+
+Both outcomes point to the same security idea: once a file is signed, any change afterward breaks trust. In real environments, that’s what prevents modified or tampered scripts from being executed as if they were legitimate.
 ```
 
 **Should the CVI-CodeSigning template require CA certificate manager approval in a production environment? Why or why not?**
