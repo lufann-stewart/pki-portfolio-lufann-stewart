@@ -167,9 +167,9 @@ A 1-year validity period keeps certificates rotating regularly, and the 6-week r
 
 | Group / Account | Read | Enroll | Autoenroll | Reason |
 |-----------------|------|--------|------------|--------|
-| Authenticated Users |Yes | NO| NO|Required for template visibility in AD, but enrollment is restricted. |
-| CORP\svc.autoenroll | Yes|Yes |Yes |Only account allowed to request and autoenroll for this certificate. |
-| Domain Admins |Yes |Yes |No |Domain Admins were given Read and Enroll permissions so administrators can access and manually request certificates if needed without automatically receiving them through autoenrollment.
+| Authenticated Users | Yes | No | No |Required for template visibility in AD, but enrollment is restricted. |
+| CORP\svc.autoenroll | Yes| Yes | Yes |Only account allowed to request and autoenroll for this certificate. |
+| Domain Admins |Yes | Yes | No |Domain Admins were given Read and Enroll permissions so administrators can access and manually request certificates if needed without automatically receiving them through autoenrollment.
  |
 
 **Explanation of enrollment permission decisions:**
@@ -278,7 +278,6 @@ certutil -store My
 **Full certutil output:**
 
 ```
-PS C:\Users\pki.admin> certutil -user -store My
 My "Personal"
 ================ Certificate 0 ================
 Serial Number: 440000000911304cdb8a83f133000000000009
@@ -294,7 +293,6 @@ Cert Hash(sha1): 7bff83b595815dd3ec80e4e658b4b73cb67a7e1e
   Provider = Microsoft Enhanced Cryptographic Provider v1.0
 Encryption test passed
 CertUtil: -store command completed successfully.
-PS C:\Users\pki.admin>
 
 
 ```
@@ -306,10 +304,10 @@ PS C:\Users\pki.admin>
 | Subject | CN=Svc Autoenroll, OU=Service Accounts, DC=corp, DC=cvilab, DC=local |
 | Issuer | CN=CVI Issuing CA 1, DC=corp, DC=cvilab, DC=local |
 | Serial Number |440000000911304cdb8a83f133000000000009 |
-| Key Usage |Digital Signature, Key Encipherment (a0) |
-| Enhanced Key Usage (EKU) |Client Authentication (1.3.6.1.5.5.7.3.2) |
+| Key Usage | Digital Signature, Key Encipherment (a0) |
+| Enhanced Key Usage (EKU) | Client Authentication (1.3.6.1.5.5.7.3.2) |
 | Validity: Not Before | ‎Thursday, ‎May ‎28, ‎2026 3:14:09 PM|
-| Validity: Not After |‎Sunday, ‎April ‎25, ‎2027 7:36:58 PM |
+| Validity: Not After | ‎Sunday, ‎April ‎25, ‎2027 7:36:58 PM |
 | Thumbprint |7bff83b595815dd3ec80e4e658b4b73cb67a7e1e |
 
 ### Step 2 — Confirm in certsrv.msc and Record the Request ID
@@ -327,11 +325,11 @@ PS C:\Users\pki.admin>
 
 | Column | Value |
 |--------|-------|
-| Request ID |9 |
-| Requester Name |CORP\svc.autoenroll |
-| Certificate Template |"1.3.6.1.4.1.311.21.8.15886664.4298044.8996776.14853544.7902291.169.16756659.8111121" CVI Service Account |
-| Issued Common Name |Svc Autoenroll |
-| Certificate Expiration Date |4/25/2027 7:36 PM |
+| Request ID | 9 |
+| Requester Name | CORP\svc.autoenroll |
+| Certificate Template | "1.3.6.1.4.1.311.21.8.15886664.4298044.8996776.14853544.7902291.169.16756659.8111121" CVI Service Account |
+| Issued Common Name | Svc Autoenroll |
+| Certificate Expiration Date | 4/25/2027 7:36 PM |
 
 > **Save this Request ID.** You will use it in Week 12 to revoke this certificate, and in Lab 03 for the comparison exercise.
 
