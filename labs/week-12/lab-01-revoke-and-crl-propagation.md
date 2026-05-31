@@ -69,7 +69,8 @@ CVICodeSigning
 **Why you selected this certificate (and confirmed it is not svc.autoenroll):**
 
 ```
-Code Singing cert can be revoked this is a very important cert that can be misused.
+I selected the Code Signing certificate because it can be revoked without affecting future labs. I confirmed that it was not the svc.autoenroll certificate, which is required for later testing. I also chose it because a Code Signing certificate is a very important certificate that could be misused to sign software or scripts if it were ever compromised.
+
 ```
 
 ---
