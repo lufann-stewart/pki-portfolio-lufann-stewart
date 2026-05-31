@@ -66,7 +66,8 @@ If you can log into PKI-SRV01 as **CORP\pki.admin**, you are communicating with 
 |-----------|-----------|--------|
 | Digital Signature |Yes |Used to digitally sign code so systems can verify the authenticity and integrity of the signed file. |
 | Key Encipherment | No  |Not related to code signing as this is used in TLS to protect sesssion keys |
-| Non-Repudiation |No |For a code signing certificate, the Digital Signature key usage is sufficient because it enables the cryptographic signing operation required for Authenticode. The Code Signing EKU already restricts the certificate’s intended purpose to code signing, so Non-Repudiation is not strictly necessary. |
+| Non-Repudiation |No |For a code signing certificate, the Digital Signature key usage is sufficient because it enables the cryptographic signing operation required for Authenticode. The Code Signing EKU already restricts the certificate’s intended purpose to code signing, so Non-Repudiation is not strictly necessary. |  
+
 **Explanation of Key Usage decision:**
 
 ```
