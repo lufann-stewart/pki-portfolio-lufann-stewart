@@ -462,9 +462,7 @@ certutil -dump <certificate.cer>
 **CA Issuers URL:**
 
 ```
-**CA Issuers URL:**
-```text
-[http://pki-srv01.corp.cvilab.local/CertEnroll/CVI](http://pki-srv01.corp.cvilab.local/CertEnroll/CVI) Issuing CA 1.crt
+http://pki-srv01.corp.cvilab.local/CertEnroll/CVI Issuing CA 1.crt
 ```
 
 **OCSP URL:**
