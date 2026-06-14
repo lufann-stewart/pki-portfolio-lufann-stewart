@@ -310,7 +310,7 @@ That second step is required because revoking the certificate in certsrv.msc onl
 **2. You chose a specific revocation reason code. What would have changed operationally if you had chosen Key Compromise instead — particularly regarding CRL publication timing and whether the revocation could be reversed?**
 
 ```
-If Key Compromise had been selected, the revocation would indicate that the private key may have been exposed, which is a high-severity security event. Operationally, this means the certificate must be treated as immediately untrusted and should not be reversed. However, CRL publication still works the same way; the difference is urgency and security impact, not the CRL mechanism itself.
+If Key Compromise had been selected, the revocation would indicate that the private key may have been exposed or stolen, making it a high-severity security incident. Operationally, the certificate must be treated as immediately untrusted and the revocation cannot be reversed. However, CRL publication still works through the same mechanism; the difference is the urgency and security impact. A Key Compromise revocation should trigger immediate publication of a new CRL so relying parties can learn about the compromised certificate as quickly as possible.
 ```
 
 **3. What does the NextUpdate field in the CRL tell a relying party? If a relying party tries to verify your revoked certificate after NextUpdate has passed and no new CRL has been published, what happens?**
