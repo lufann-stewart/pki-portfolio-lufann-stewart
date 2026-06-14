@@ -239,7 +239,7 @@ http://pki-srv01.corp.cvilab.local/ocsp
 **OCSP URL found in the AIA extension:**
 
 ```
-http://pki-srv01.corp.cvilab.local/ocsp
+URL=http://pki-srv01.corp.cvilab.local/ocsp
 ```
 
 ### Step 2 — Test a Valid Certificate
@@ -455,7 +455,7 @@ certutil -dump <certificate.cer>
 | AIA Entry | Typical URL Format | Purpose |
 |---|---|---|
 | CA Issuers (caIssuers) | `http://pki-srv01.corp.cvilab.local/CertEnroll/CVI Issuing CA 1.crt` | Tells relying parties where to download the issuing CA's certificate to build the trust chain |
-| OCSP (id-ad-ocsp) | `http://pki-srv01.corp.cvilab.local/ocsp` | Tells relying parties where to query real-time revocation status via OCSP |
+| OCSP (id-ad-ocsp) | `http://pki-srv01.corp.cvilab.local/ocsp` | Used by a relying party to query real-time revocation status via OCSP
 
 > **Why both entries matter:** The CA Issuers URL is used for chain building — if a relying party does not have the issuing CA certificate in its trust store, it downloads it from this URL to complete the chain. The OCSP URL is used for revocation checking. A certificate with a missing or unreachable AIA entry will fail validation in environments that require complete chain building or revocation checking.
 
@@ -468,7 +468,7 @@ http://pki-srv01.corp.cvilab.local/CertEnroll/CVI Issuing CA 1.crt
 **OCSP URL:**
 
 ```
-[http://pki-srv01.corp.cvilab.local/ocsp](http://pki-srv01.corp.cvilab.local/ocsp)
+http://pki-srv01.corp.cvilab.local/ocsp
 ```
 
 **Explain in one sentence what each URL is used for by a relying party:**
