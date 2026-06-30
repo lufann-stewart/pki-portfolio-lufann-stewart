@@ -1,7 +1,7 @@
 # Lab 01: Full CA Backup — Database, Keys, and System State
 
 Lufann Stewart  
-June 5, 2026   
+June 30, 2026  
 **Phase:** 2 | **Week:** 13  
 **Submission Path:** `labs/week-13/lab-01-ca-backup.md`
 
@@ -158,7 +158,7 @@ You will specify a password to protect the private key .p12 file. This password 
 **Password storage location (do not write the password here — write where you stored it):**
 
 ```
-Paswords saved in Documents folder on desktop machine - not in the backup folder.
+Password saved in Documents folder on Desktop machine - not in the backup folder.
 ```
 
 ### Step 2 — Run certutil -backup
@@ -238,7 +238,7 @@ C:\CABackup\DataBase\edb00004.log         1048576 6/5/2026 11:08:45 AM
 CA private key file (.p12):
   Full path: C:\CABackup\CVI Issuing CA 1.p12 
   File size: 4631
-  Last write time: /5/2026 11:08:45 AM
+  Last write time: 6/5/2026 11:08:45 AM
 
 CA database file (.edb):
   Full path: C:\CABackup\DataBase\certbkxp.dat         398     6/5/2026 11:08:45 AM
@@ -270,7 +270,7 @@ CertUtil: -dump command completed successfully.
 
 > **If you see "Cannot find object or property" or a password error:** The .p12 file may be corrupt or the password is wrong. Re-run certutil -backup with the correct password.
 
-``
+```
 ================ Certificate 0 ================
 ================ Begin Nesting Level 1 ================
 Element 0:
@@ -328,12 +328,20 @@ Install-WindowsFeature Windows-Server-Backup
 ```
 
 ```
-(paste Get-WindowsFeature output here)
+Display Name                                            Name                       Install State
+------------                                            ----                       -------------
+[ ] Windows Server Backup                               Windows-Server-Backup          Available
+
 ```
 
 **Windows Server Backup feature is installed:**
 - [ ] Yes — already installed
-- [ ] Installed now — describe any prompts:
+- [X] Installed now — describe any prompts:
+
+```
+When I first ran wbadmin start systemstatebackup, Windows reported that Windows Server Backup was not installed. I installed the feature using Install-WindowsFeature Windows-Server-Backup -IncludeAllSubFeature, restarted PowerShell, and reran the backup successfully.
+
+```
 
 ### Step 2 — Identify a Backup Target Volume
 
@@ -345,7 +353,12 @@ Get-PSDrive -PSProvider FileSystem
 ```
 
 ```
-(paste Get-PSDrive output here)
+Name           Used (GB)     Free (GB) Provider      Root                                                                                                 CurrentLocation
+----           ---------     --------- --------      ----                                                                                                 ---------------
+C                  31.44         27.95 FileSystem    C:\                                                                                                 Windows\system32
+D                                      FileSystem    D:\                                                                                                                 
+F                   8.08         11.91 FileSystem    F:\                                                                                                                 
+Z                                      FileSystem    \\VBoxSvr\Shared             
 ```
 
 > **If only C: is available:** The system state backup to a local drive requires a second volume. In this situation, use one of the alternatives below:
@@ -356,7 +369,11 @@ Get-PSDrive -PSProvider FileSystem
 **System state backup target drive/path:**
 
 ```
-(record the drive letter or path you will use, e.g., "D:\")
+F:\
+
+wbadmin requires the backup target to be on a separate disk from the operating system. In my VM, C: and E: were on the same virtual disk, so E: could not be used as the backup target.
+
+I powered off the VM, added a new 20 GB virtual hard disk in Oracle VirtualBox, then initialized and formatted it as an NTFS volume in Disk Management and assigned it drive letter F:. I then used F: as the backup target for the system state backup.
 ```
 
 ### Step 3 — Run the System State Backup
@@ -374,11 +391,14 @@ This takes 10–30 minutes depending on system configuration.
 > **If the command fails with "The backup storage location is invalid":** The target must be a fixed local disk or a network share (UNC path). USB drives and mapped drives may not work. Try a different target.
 
 ```
-(paste wbadmin output — or document if skipped with explanation)
+The backup operation successfully completed.
+The backup of the system state successfully completed [6/30/2026 7:50 PM].
+Log of files successfully backed up:
+C:\Windows\Logs\WindowsServerBackup\Backup-30-06-2026_19-26-26.log
 ```
 
 **System state backup completed without errors:**
-- [ ] Yes — output included above
+- [X] Yes — output included above
 - [ ] No — error and resolution:
 - [ ] Skipped — reason documented:
 
@@ -397,11 +417,19 @@ Can recover: Volume(s), File(s), Application(s), System State, Bare Metal Recove
 ```
 
 ```
-(paste wbadmin get versions output here)
+wbadmin 1.0 - Backup command-line tool
+(C) Copyright Microsoft Corporation. All rights reserved.
+
+Backup time: 6/30/2026 12:26 PM 
+Backup target: Fixed Disk labeled F:
+Version identifier: 06/30/2026-19:26
+Can recover: Volume(s), File(s), Application(s), System State
+Snapshot ID: {fae1a66c-0917-4ec1-8940-a82c22959cde}
+
 ```
 
 **System state backup appears in wbadmin get versions output:**
-- [ ] Yes — timestamp matches today
+- [X] Yes — timestamp matches today
 - [ ] No — describe:
 
 ---
@@ -422,11 +450,27 @@ certutil -CRL
 ```
 
 ```
-(paste all three outputs here)
+
+PS C:\Windows\system32> Get-Service CertSvc
+
+Status   Name               DisplayName                           
+------   ----               -----------                           
+Running  CertSvc            Active Directory Certificate Services 
+
+
+
+PS C:\Windows\system32> certutil -ping
+Connecting to PKI-SRV01.corp.cvilab.local\CVI Issuing CA 1 ...
+Server "CVI Issuing CA 1" ICertRequest2 interface is alive (31ms)
+CertUtil: -ping command completed successfully.
+
+PS C:\Windows\system32> certutil -CRL
+CertUtil: -CRL command completed successfully.
+
 ```
 
 **CA is operational after backup — all three commands succeeded:**
-- [ ] Yes
+- [X] Yes
 - [ ] No — describe the issue:
 
 ---
@@ -438,49 +482,72 @@ Answer all questions in complete sentences.
 **1. Describe the three components of a complete CA backup and explain what would happen during recovery if each one were missing.**
 
 ```
-(your answer here)
+A complete CA backup consists of three components: the **CA database**, the **CA certificate and private key**, and the **System State**.
+
+The **CA database** contains all the issued certificates, revoked certificates, and pending certificate requests. If this is missing during recovery, you would lose the CA's history, including issued and revoked certificates and any pending requests that had not been completed.
+
+The **CA certificate and private key** are needed to restore the CA's identity. The CA cannot be restored as the same CA without its private key because it would no longer be able to sign certificates or certificate revocation lists (CRLs). Even if the database is restored, the CA would not be able to function properly without the private key.
+
+The System State contains the server's core operating system configuration. It contains the Windows Registry, the Active Directory database (if the CA is on a domain controller), IIS configuration (if installed), and the local certificate store. If the System State is missing, the server's configuration cannot be fully restored, which can prevent the CA from working correctly even if the database and private key are available.
+
 ```
 
 **2. certutil -backup uses the Volume Shadow Copy Service (VSS). What does this mean operationally — specifically, why is it better than stopping the CA service before copying the database files?**
 
 ```
-(your answer here)
+VSS (Volume Shadow Copy Service) allows `certutil -backup` to create a point-in-time snapshot of the CA’s volumes so the backup can be taken from a consistent state while the CA is still running.
+
+This is better than stopping the CA service because it avoids downtime and service disruption, and it ensures the database and related files are backed up in a consistent state without being affected by ongoing changes during the backup process.
+
 ```
 
 **3. The CA private key backup (.p12 file) is protected by a password you chose. Where did you store the password, and why is storing it in the same folder as the .p12 file a security problem?**
 
 ```
-(your answer here)
+I stored the password in a text file on my desktop Documents folder, separate from the .p12 file.
+
+Storing the password in the same folder as the .p12 file would be a security risk because if an attacker or unauthorized user gains access to that directory, they would immediately have both the private key and the password needed to unlock it. This would fully compromise the CA private key.
+
+Keeping them separate reduces the chance of both being exposed together.
+
+
 ```
 
 **4. What does the Windows system state backup capture that the certutil -backup does not? If the system state backup had been skipped, what would a recovery operator need to do manually that they would not need to do if the system state backup were present?**
 
 ```
-(your answer here)
+The Windows System State backup captures the server's core configuration, including the Windows Registry, system files, the local certificate store, and the Active Directory database if the CA is installed on a domain controller. `certutil -backup` only backs up the CA database, certificate, and private key.
+
+If the System State backup was skipped, the recovery operator would have to manually rebuild and reconfigure the server before restoring the CA. This would take more time and increase the chance of missing or misconfiguring something.
+
 ```
 
 **5. Explain the relationship between backup frequency and Recovery Point Objective (RPO). If this CA performs daily backups and the CA fails on day six of a seven-day backup cycle, what is the maximum data loss — and what specifically is lost?**
 
 ```
-(your answer here)
+
+The Recovery Point Objective (RPO) is the most data you could lose if the CA fails, and it depends on how often backups are done. The more often you back up the CA, the less data you could lose.
+
+If the CA is backed up every day and it fails on day six, the most you would lose is one day's worth of data. That would include any certificate requests, newly issued certificates, certificate revocations, CRLs generated after the last backup, and any pending requests created since the previous backup.
+
 ```
 
 ---
 
 ## Submission Checklist
 
-- [ ] Logged in as CORP\pki.admin (not a local account) — whoami output included
-- [ ] CA service confirmed running — Get-Service CertSvc output included
-- [ ] CA confirmed responding — certutil -ping output included
-- [ ] C:\CABackup folder created via File Explorer and confirmed empty before running certutil
-- [ ] certutil -backup -p run without errors — full output included
-- [ ] .p12 file confirmed present — file name, path, and size recorded
-- [ ] .edb database file confirmed present — file name, path, and size recorded
-- [ ] certutil -dump confirms .p12 is readable with backup password
-- [ ] Private key backup password stored SEPARATELY from C:\CABackup — storage location documented (not the password itself)
-- [ ] Windows Server Backup feature installed
-- [ ] wbadmin system state backup run (or limitation documented with instructor approval)
-- [ ] wbadmin get versions confirms backup completed with today's timestamp
-- [ ] CA confirmed still operational after backup — Get-Service, certutil -ping, certutil -CRL all succeeded
-- [ ] All five lab report questions answered in complete sentences
-- [ ] Lab file committed to `labs/week-13/lab-01-ca-backup.md`
+- [X] Logged in as CORP\pki.admin (not a local account) — whoami output included
+- [X] CA service confirmed running — Get-Service CertSvc output included
+- [X] CA confirmed responding — certutil -ping output included
+- [X] C:\CABackup folder created via File Explorer and confirmed empty before running certutil
+- [X] certutil -backup -p run without errors — full output included
+- [X] .p12 file confirmed present — file name, path, and size recorded
+- [X] .edb database file confirmed present — file name, path, and size recorded
+- [X] certutil -dump confirms .p12 is readable with backup password
+- [X] Private key backup password stored SEPARATELY from C:\CABackup — storage location documented (not the password itself)
+- [X] Windows Server Backup feature installed
+- [X] wbadmin system state backup run (or limitation documented with instructor approval)
+- [X] wbadmin get versions confirms backup completed with today's timestamp
+- [X] CA confirmed still operational after backup — Get-Service, certutil -ping, certutil -CRL all succeeded
+- [X] All five lab report questions answered in complete sentences
+- [X] Lab file committed to `labs/week-13/lab-01-ca-backup.md`
