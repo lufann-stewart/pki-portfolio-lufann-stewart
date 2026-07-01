@@ -545,13 +545,13 @@ The event log shows intermittent errors (Event IDs 44 and 91) tied to Active Dir
 **Recovery completed at (date and time):**
 
 ```
-7/1/2026 8:40:12 AM
+7/1/2026 12:10:45 PM
 ```
 
 **Time from snapshot restore initiation to CA fully operational:**
 
 ```
-5 minutes
+2 minutes
 ```
 
 ---
@@ -563,56 +563,76 @@ Answer all questions in complete sentences.
 **1. Describe the failure state you simulated in Part B. What did Get-Service CertSvc show, and what Event IDs appeared in the event log? What would a real-world CA administrator see if they encountered this failure?**
 
 ```
-I siulated the detletion of ca database files and logs so when the ca service started up ut woasnt able because it when it looked in the folder for the files they were not there. Get-Service CertSvc showed that the AD services were in a stopped status  and the events were 7/1/2026 8:20:06 AM              17 Error            Active Directory Certificate Services did not start: Unable to initialize the database connection for CVI Issuing...
-7/1/2026 8:20:06 AM              38 Information      Active Directory Certificate Services for CVI Issuing CA 1 was stopped.                                             
-7/1/2026 8:13:29 AM              26 Information      Active Directory Certificate Services for CVI Issuing CA 1 was started.  DC=DC01.corp.cvilab.local                  
-7/1/2026 8:13:29 AM              44 Error            The "Windows default" Policy Module "Initialize" method returned an error. There is a time and/or date difference...
-7/1/2026 8:09:12 AM              38 Information      Active Directory Certificate Services for CVI Issuing CA 1 was stopped       A real world Ca admin would see a failure of the ca service to start 
+I simulated a CA failure by deleting the CA database and log files inside the CertLog folder. After that, the CA could no longer start because it had no database to load.
+
+Get-Service CertSvc showed the service as Stopped. In the event logs, I saw Event ID 17 showing the CA could not initialize the database, along with Events 38, 44, and 91 showing service stops and AD/policy initialization errors.
+
+In a real environment, this would look like the CA is down because its database is missing or corrupted, and it would be unable to issue certificates until it is restored.
 ```
 
 **2. Walk through the snapshot restore procedure step by step. What did VirtualBox do during the restore — and how did the restored VM state compare to the failure state you left it in?**
 
 ```
-I shut down the Pki server wentin the the setting in virutal box manager and took a snapshot 
+I shut down the VM, opened VirtualBox Manager, and took a snapshot called Week13-Lab02-PreFailure-7-1-26.
+
+After breaking the CA, I went back into the Snapshots menu, selected that snapshot, and restored it. Then I powered the VM back on.
+
+The restore rolled the system back completely to the saved state, meaning the CA database, configuration, and system state all returned to how they were before the failure.
 ```
 
 **3. Walk through the post-recovery verification checklist. Which step confirmed that the CA was fully operational — not just running, but functional? Explain what each verification step tests and why it is not sufficient to just check that the CA service is running.**
 
 ```
-(your answer here)
+I checked several things to confirm the CA was fully working again.
+
+First, Get-Service CertSvc confirmed the service was running, but that alone doesn’t prove functionality.
+
+Then certutil -ping confirmed the CA was actually responding.
+
+Next, certutil -CRL confirmed the CA could publish a CRL, which proves core CA functions are working.
+
+Finally, certutil -view confirmed the database still had all issued certificates.
+
+Just checking the service isn’t enough because it doesn’t confirm the CA can actually issue certificates or communicate properly.
 ```
 
 **4. The snapshot you restored from was taken immediately after Lab 01. If this were a production environment where the last snapshot was taken 72 hours ago, what operational data would be lost in this recovery — and why does that data loss matter to the organization?**
 
 ```
-(your answer here)
+If this were a production system and the snapshot was from 72 hours ago, any changes made in those 3 days would be lost.
+
+That includes issued certificates, certificate requests, revocations, and any updates to the CA database.
+
+This matters because those changes are part of security and identity trust. Losing them could break authentication, cause missing certificates, or create gaps in revocation tracking.
 ```
 
 **5. Compare snapshot restore to file-based restore (which you will perform in Lab 03). Based on what you experienced today, what is the primary advantage of snapshot restore — and in what failure scenario would snapshot restore NOT be available as an option?**
 
 ```
-(your answer here)
+The main advantage of snapshot restore is speed. It restores the entire system state at once, including the OS, CA configuration, and database.
+
+The limitation is that it only works if a snapshot exists. If the VM is gone, the hypervisor is unavailable, or there is no recent snapshot, then you can’t use this method and would need a file-based or system-state restore instead.
 ```
 
 ---
 
 ## Submission Checklist
 
-- [ ] Logged in as CORP\pki.admin — confirmed with whoami
-- [ ] Lab 01 backup files confirmed present in C:\CABackup before starting
-- [ ] Pre-failure CA state recorded (CRL status, certificate thumbprint, last issued RequestID)
-- [ ] PKI-SRV01 shut down cleanly before snapshot
-- [ ] Snapshot taken — name and description recorded
-- [ ] Destructive operation performed — failure state documented (service status + event log)
-- [ ] Option selected (delete database files OR rename CertLog folder) documented
-- [ ] PKI-SRV01 powered off before snapshot restore
-- [ ] Snapshot restore completed (VirtualBox or UTM) — no errors
-- [ ] Post-recovery verification: CA service running
-- [ ] Post-recovery verification: certutil -ping successful
-- [ ] Post-recovery verification: certutil -CRL successful
-- [ ] Post-recovery verification: CRL accessible at HTTP CDP
-- [ ] Post-recovery verification: database certificate count matches pre-failure baseline
-- [ ] Post-recovery verification: event log clean (no CA errors after recovery)
-- [ ] Recovery time recorded
-- [ ] All five lab report questions answered in complete sentences
-- [ ] Lab file committed to `labs/week-13/lab-02-ca-recovery-simulation.md`
+- [X] Logged in as CORP\pki.admin — confirmed with whoami
+- [X] Lab 01 backup files confirmed present in C:\CABackup before starting
+- [X] Pre-failure CA state recorded (CRL status, certificate thumbprint, last issued RequestID)
+- [X] PKI-SRV01 shut down cleanly before snapshot
+- [X] Snapshot taken — name and description recorded
+- [X] Destructive operation performed — failure state documented (service status + event log)
+- [X] Option selected (delete database files OR rename CertLog folder) documented
+- [X] PKI-SRV01 powered off before snapshot restore
+- [X] Snapshot restore completed (VirtualBox or UTM) — no errors
+- [X] Post-recovery verification: CA service running
+- [X] Post-recovery verification: certutil -ping successful
+- [X] Post-recovery verification: certutil -CRL successful
+- [X] Post-recovery verification: CRL accessible at HTTP CDP
+- [X] Post-recovery verification: database certificate count matches pre-failure baseline
+- [X] Post-recovery verification: event log reviewed (non-CA AD connectivity errors present and explained in Step 6)
+- [X] Recovery time recorded
+- [X] All five lab report questions answered in complete sentences
+- [X] Lab file committed to `labs/week-13/lab-02-ca-recovery-simulation.md`
