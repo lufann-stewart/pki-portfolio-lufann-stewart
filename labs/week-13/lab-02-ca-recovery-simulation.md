@@ -533,12 +533,16 @@ TimeCreated : 6/30/2026 12:12:01 PM
 Id          : 44
 Message     : The "Windows default" Policy Module "Initialize" method returned an error. The specified server cannot perform the requested operation. The returned status code is 0x8007003a (58).  The Active Directory containing the Certification Authority 
               could not be contacted.
+
+Note: Event log output includes both pre-failure and post-recovery entries from the same system journal for comparison.
 ```
 
 **Event log shows no errors from CertificationAuthority after recovery:**
 - [ ] Yes — no errors
 - [X] Errors found — document and explain:
-The event log shows intermittent errors (Event IDs 44 and 91) tied to Active Directory connectivity. These point to temporary issues reaching AD/DNS when the CA Policy Module initializes. Even with those errors, the CA service stayed up and responded normally to certutil -ping, which confirms the restore brought back the CA database and core services correctly. The errors are environmental (domain/DNS), not a sign of CA database corruption.
+The event log shows intermittent AD-related errors (Event IDs 44 and 91) from before or during initialization. These are not caused by the snapshot restore itself and do not indicate CA database or service failure.
+
+Despite these environmental errors, the CA service is running and responds successfully to certutil -ping, confirming the snapshot restore returned the system to a functional state.
 
 ### Step 7 — Record Recovery Completion
 
@@ -551,7 +555,8 @@ The event log shows intermittent errors (Event IDs 44 and 91) tied to Active Dir
 **Time from snapshot restore initiation to CA fully operational:**
 
 ```
-2 minutes
+Approximately 2–5 minutes for the snapshot restore and CA service recovery.
+Additional time (not included) was spent on verification steps and lab navigation, which are environment-dependent.
 ```
 
 ---
