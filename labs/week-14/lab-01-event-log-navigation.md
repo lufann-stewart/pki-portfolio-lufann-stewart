@@ -144,7 +144,7 @@ Active Directory Certificate Services for CVI Issuing CA 1 was stopped.
 
 What this event represents:
 ```
-This event shows that the Active Directory Certificate Services service was stopped. This usually happens when an administrator stops the service for maintenance, troubleshooting, or another administrative task.
+This event shows that the Active Directory Certificate Services service was stopped. The service may have been stopped as part of maintenance, troubleshooting, or another administrative task.
 ```
 
 ---
@@ -177,9 +177,8 @@ This event shows that the CA was unable to open the NTAuthCertificates store in 
 
 ```
 Event ID: 44  
-Logged: 5/29/2026 4:08:27 PM
-Description:  The "Windows default" Policy Module "Initialize" method returned an error. The specified domain either does not exist or could not be contacted. The returned status code is 0x8007054b (1355).  The Active Directory containing the Certification Authority could not be contacted.
-................
+Logged: 5/29/2026 4:08:27 PM  
+Description:  The "Windows default" Policy Module "Initialize" method returned an error. The specified domain either does not exist or could not be contacted. The returned status code is 0x8007054b (1355).  The Active Directory containing the Certification Authority could not be contacted.  
 ```
 
 ### Step 5 — Event Type Summary
@@ -192,7 +191,7 @@ Based on your filtered view, complete this table:
 | CA service start/stop events | Yes | 68 |
 | Certificate template update events | No | 0 |
 | CA configuration change events | Yes | 1 |
-| Error events (Level = Error) | Yes / No | 39 |
+| Error events (Level = Error) | Yes | 39 |
 
 ---
 
@@ -279,12 +278,15 @@ CertUtil: -view command completed successfully.
 ```
 
 ### Step 3 — Query All Revoked Certificates
-
+        
 ```powershell
 certutil -view -restrict "Disposition=21"
 ```
 
-```
+<details>
+<summary>Click to expand certutil output</summary>
+
+````
 PS C:\Windows\system32> certutil -view -restrict "Disposition=21"
 Schema:
   Column Name                   Localized Name                Type    MaxLength
@@ -1448,8 +1450,10 @@ Maximum Row Index: 4
   43 Certificate Extensions, Total Size = 3943, Max Size = 241, Ave Size = 91
  211 Total Fields, Total Size = 23167, Max Size = 1630, Ave Size = 109
 CertUtil: -view command completed successfully.
+````
 
-```
+</details>
+
 
 **Total number of revoked certificates found:**
 ```
@@ -2791,7 +2795,7 @@ N/A
 
 **Which lab did this certificate come from?**
 ```
-Have to see which lab
+Week 10
 ```
 
 ---
@@ -2800,32 +2804,32 @@ Have to see which lab
 
 Request ID:
 ```
-13
+5
 ```
 
 Requester Name:
 ```
-CORP\PKI-SRV01$
+CORP\pki.admin
 ```
 
 Certificate Template:
 ```
-OCSP Response Signing
+CVI Code Signing
 ```
 
 Issued Common Name:
 ```
-CN = PKI-SRV01.corp.cvilab.local
+CN = PKI Admin
 ```
 
 Not Before:
 ```
-‎Saturday, ‎May ‎30, ‎2026 12:39:05 PM
+‎‎Sunday, ‎May ‎24, ‎2026 12:53:58 PM
 ```
 
 Not After:
 ```
-‎Saturday, ‎June ‎13, ‎2026 12:39:05 PM
+‎‎Sunday, ‎April ‎25, ‎2027 7:36:58 PM
 ```
 
 Serial Number:
@@ -2835,12 +2839,22 @@ Serial Number:
 
 Disposition:
 ```
-20
+21
+```
+
+Revocation Date (if revoked):
+```
+‎Saturday, ‎May ‎30, ‎2026 11:10:00 AM
+```
+
+Revocation Reason (if revoked):
+```
+Cease of Operation
 ```
 
 **Which lab did this certificate come from?**
 ```
-Have to check
+eek 11 (certificate created/issued) and revoked in Week 12.
 ```
 
 ---
@@ -2931,7 +2945,7 @@ Answer the following questions using the event log data from Part A and the cert
 Select **one event log entry** from Part A (any event type). In 3–5 sentences, explain what this event tells you about the CA's operational state at the time it was generated. Be specific about what action caused the event and what the event confirms about the CA.
 
 ```
-The CA was not operating at the time because it could not initialize the database due to the missing required files in the certlog folder. Because these database and log files were deleted or moved, the Active Directory Certificate Services (AD CS) service failed to start when an attempt was made. This event confirms that the CA strictly relies on the availability of its .edb database and transaction log files to successfully initialize its database state and enter operational status.
+The CA was not operational at the time because it could not initialize its database after the required database files in the CertLog folder were missing. Because the database and log files were missing, Active Directory Certificate Services failed to start when the service was started. This event confirms that the CA depends on its database and transaction log files to initialize correctly and become operational.
 ```
 
 ### Analysis Question 2
@@ -2939,7 +2953,7 @@ The CA was not operating at the time because it could not initialize the databas
 Select **one certificate record** from Part B. In 3–5 sentences, explain what this record tells you about the lifecycle of that specific certificate. Include the template used, who requested it, its current status, and what you would need to do next if the certificate were approaching expiry.
 
 ```
-(your answer here — minimum 3 sentences)
+This certificate was requested by CORP\pki.admin and was issued using the CVI Code Signing template. Its current status is revoked, which means it can no longer be used. If this certificate had not been revoked and was approaching its expiration date, it would need to be renewed before it expired to avoid interrupting business operations that depend on it.
 ```
 
 ### Analysis Question 3
@@ -2947,7 +2961,8 @@ Select **one certificate record** from Part B. In 3–5 sentences, explain what 
 In 4–6 sentences, explain how the Application event log and the CA certificate database complement each other as operational data sources. Give a specific example scenario where you would need to consult **both** sources to fully understand what happened — and explain why one source alone would be insufficient.
 
 ```
-(your answer here — minimum 4 sentences)
+The CA certificate database records certificate information such as who requested the certificate, the template used, and whether the certificate was issued or revoked. The Application event log records what the CA service was doing, such as service start and stop events, database errors, and Active Directory communication issues. If someone reported that their certificate was not working, I would first check the CA database to verify the certificate's status and validity. Then I would check the Application event log to see if the CA experienced any errors or other issues that could explain what happened, since the database alone would not show operational events.
+
 ```
 
 ---
@@ -2959,41 +2974,41 @@ Answer each question in complete sentences.
 **1. What event type did you find most frequently in the Application event log? What does the frequency of that event type tell you about the CA's most common operation in your lab environment?**
 
 ```
-(your answer here)
+The CA service start and stop events appeared most frequently in the Application event log. The high number of these events shows that the CA service was frequently started and stopped during the lab exercises for testing, troubleshooting, backups, and recovery tasks.
 ```
 
 **2. The certutil -view command queries the CA database, not the event log. What is the difference between what these two sources record — and what would you lose operationally if you had access to the event log but not the CA database?**
 
 ```
-(your answer here)
+The difference is that the Application event log records what the CA service was doing, while the CA database records certificate information such as whether a certificate is issued, revoked, or pending. If you only had access to the Application event log, you would lose access to certificate information stored in the CA database, such as the requester, certificate template, validity period, serial number, and current certificate status.
 ```
 
 **3. In the Disposition field, you saw codes 20 (Issued) and 21 (Revoked). If a certificate shows Disposition 21, what additional fields should you check to understand the full context of the revocation, and why?**
 
 ```
-(your answer here)
+If a certificate shows Disposition 21 (Revoked), you should check the Revocation Reason and Revocation Date. These fields show why the certificate was revoked and when the revocation occurred, which helps provide the full context of the certificate's status.
 ```
 
 **4. The Application event log records CA events by default. The Security event log does not record CA events without additional configuration (covered in Lesson 3). Based on what you found in Part A, what operational information is present in the Application log — and what is absent that would be important in a production environment?**
 
 ```
-(your answer here)
+The Application event log contains information about what the CA service was doing, such as service starts and stops, errors, and Active Directory communication issues. However, it does not provide information about which user or administrator performed the actions. In a production environment, this information would be important for accountability, auditing, and investigating security-related events.
 ```
 
 ---
 
 ## Submission Checklist
 
-- [ ] Logged in as CORP\pki.admin — whoami output included
-- [ ] CA running and responding — Get-Service and certutil -ping output included
-- [ ] Application event log filtered by Source = CertificationAuthority
-- [ ] At least three distinct event types documented with Event ID, timestamp, and description
-- [ ] Event type summary table completed
-- [ ] certutil -view -restrict "Disposition=20" output included (all issued certs)
-- [ ] certutil -view -restrict "Disposition=21" output included (all revoked certs)
-- [ ] certutil -view requester filter output included
-- [ ] At least two specific certificate records documented in full
-- [ ] Template distribution output included
-- [ ] All three Part C analysis questions answered (minimum sentence counts met)
-- [ ] All four lab report questions answered in complete sentences
-- [ ] File committed to `labs/week-14/lab-01-event-log-navigation.md`
+- [X] Logged in as CORP\pki.admin — whoami output included
+- [X] CA running and responding — Get-Service and certutil -ping output included
+- [X] Application event log filtered by Source = CertificationAuthority
+- [X] At least three distinct event types documented with Event ID, timestamp, and description
+- [X] Event type summary table completed
+- [X] certutil -view -restrict "Disposition=20" output included (all issued certs)
+- [X] certutil -view -restrict "Disposition=21" output included (all revoked certs)
+- [X] certutil -view requester filter output included
+- [X] At least two specific certificate records documented in full
+- [X] Template distribution output included
+- [X] All three Part C analysis questions answered (minimum sentence counts met)
+- [X] All four lab report questions answered in complete sentences
+- [X] File committed to `labs/week-14/lab-01-event-log-navigation.md`
