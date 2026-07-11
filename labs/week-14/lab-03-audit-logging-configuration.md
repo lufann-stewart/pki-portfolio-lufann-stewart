@@ -529,7 +529,7 @@ Open Event Viewer → Windows Logs → Security. Filter for Event IDs 4887, 4870
 Provide either a screenshot of the filtered Security log showing all three events, or paste the full Message field for each event.
 
 ```
-![Event Viewer![Event Viewer showing Events 4887, 4870, and 4872](lab03-security-events.png)
+![Event Viewer showing Events 4887, 4870, and 4872](lab03-security-events.png)
 ```
 
 ---
