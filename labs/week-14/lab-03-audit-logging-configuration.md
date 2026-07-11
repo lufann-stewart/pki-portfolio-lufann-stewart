@@ -1,7 +1,7 @@
 # Lab 03: Audit Logging Configuration and Verification *(Stretch)*
 
-Lufann Stewart
-July 12, 2026
+Lufann Stewart  
+July 11, 2026  
 **Phase:** 2 | **Week:** 14  
 **Submission Path:** `labs/week-14/lab-03-audit-logging-configuration.md`
 
@@ -529,7 +529,7 @@ Open Event Viewer → Windows Logs → Security. Filter for Event IDs 4887, 4870
 Provide either a screenshot of the filtered Security log showing all three events, or paste the full Message field for each event.
 
 ```
-![Event Viewer showing Events 4887, 4870, and 4872](../../assets/week-14/lab03-security-events.png)
+![Event Viewer![Event Viewer showing Events 4887, 4870, and 4872](lab03-security-events.png)
 ```
 
 ---
