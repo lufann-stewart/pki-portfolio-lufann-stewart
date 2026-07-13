@@ -2319,8 +2319,8 @@ CertUtil: -view command completed successfully.
 |---|---|---|
 | Already expired (should be 0) | 3 | CRITICAL |
 | Expiring within 30 days | 1 | ACTION |
-| Expiring within 60 days | 1 | PASS / WARN |
-| Expiring within 90 days | | PASS / MONITOR |
+| Expiring within 60 days | 1 | PASS |
+| Expiring within 90 days | 1 | PASS |
 
 ---
 
@@ -2330,33 +2330,34 @@ Complete the full health check summary table. This is the deliverable that makes
 
 **Health Check Report — PKI-SRV01 / CVI Issuing CA 1**
 
-Date of health check: `___________________`
-Conducted by: `___________________`
-pkiview.msc initial status (describe what you saw before running certutil): `___________________`
+Date of health check: `July 11, 2026`
+Conducted by: `Lufann Stewart`
+pkiview.msc initial status (describe what you saw before running certutil): `The console showed critical error alerts (Red/Amber) due to 3 already-expired certificates and 1 certificate entering the 30-day action window. Shows aia location 2 unable to download, ca certificate ok aia location 1 is ok deltacrl location 1 and cdp location 1 are expired with csp location 2 being ok the enterprise has red and so sdoes cvi issuing ca1 in the tree`
 
 | Signal | Check | Tool | Result | Status |
 |---|---|---|---|---|
-| **CRL Freshness** | CDP color before publishing | pkiview | Green / Amber / Red | — |
-| | CRL published without error | certutil -CRL | | PASS / FAIL |
-| | CDP color after publishing | pkiview | Green / Amber / Red | — |
-| | HTTP CDP accessible (VERIFIED) | certutil -URL | | PASS / FAIL |
-| | Hours until CRL NextUpdate | certutil -dump | | PASS / WARN / CRITICAL |
-| **OCSP Availability** | AIA/OCSP endpoint color | pkiview | Green / Amber / Red | — |
-| | Valid cert returns GOOD | certutil -URL | | PASS / FAIL |
-| | Revoked cert returns REVOKED | certutil -URL | | PASS / FAIL |
-| **Expiration Pipeline** | No certs already expired | certutil -view | | PASS / FAIL |
-| | 30-day expiry count | certutil -view | | PASS / ACTION |
-| | 60-day expiry count | certutil -view | | PASS / WARN |
-| | 90-day expiry count | certutil -view | | PASS / MONITOR |
+| **CRL Freshness** | CDP color before publishing | pkiview | Red | — |
+| | CRL published without error | certutil -CRL | Command completed successfully | PASS |
+| | CDP color after publishing | pkiview |  Red | — |
+| | HTTP CDP accessible (VERIFIED) | certutil -URL | Accessible | PASS |
+| | Hours until CRL NextUpdate | certutil -dump | Approximately 99 years remaining | PASS |
+| **OCSP Availability** | AIA/OCSP endpoint color | pkiview | Green (AIA Location 1 and OCSP); AIA Location 2 unavailable | — |
+| | Valid cert returns GOOD | certutil -URL | GOOD | PASS |
+| | Revoked cert returns REVOKED | certutil -URL | REVOKED | PASS |
+| **Expiration Pipeline** | No certs already expired | certutil -view | Three expired certificates found | FAIL |
+| | 30-day expiry count | certutil -view | One certificate within 30 days | ACTION |
+| | 60-day expiry count | certutil -view | None | PASS |
+| | 90-day expiry count | certutil -view | None | PASS |
 
 **Overall CA health status:**
 - [ ] Healthy — all signals PASS
 - [ ] Attention needed — one or more signals WARNING
-- [ ] Action required — one or more signals CRITICAL or ACTION
+- [X] Action required — one or more signals CRITICAL or ACTION
 
 **Summary of any findings requiring follow-up:**
 ```
-(list any findings here, or "No follow-up required — all signals healthy")
+PKIView identified several items requiring follow-up. Three certificates were already expired, and one certificate was approaching the 30-day expiration window. PKIView also reported that AIA Location 2 was unable to download, while AIA Location 1 was functioning correctly. CDP Location 1 and Delta CRL Location 1 were expired, although CDP Location 2 remained available. The CA certificate status was valid, and CRL publication completed successfully using certutil -CRL. Additional review and cleanup of expired certificates and unavailable PKI distribution points are required to return the CA health status to normal.
+
 ```
 
 ---
@@ -2366,7 +2367,21 @@ pkiview.msc initial status (describe what you saw before running certutil): `___
 Write the complete health check as a repeatable procedure — the steps another administrator could follow to run the same check on any AD CS issuing CA. Include both pkiview.msc and certutil steps in the correct order.
 
 ```
-(document the procedure as a numbered list — cover all three signals, both tools, and note where pkiview is used vs. where certutil is required)
+1. Open pkiview.msc on the CA server or an administrative workstation with the required PKI permissions. Review the Enterprise PKI tree and record the status of the CA, AIA locations, CDP locations, and CRL distribution points. Note any red, amber, or green indicators before making any changes.
+
+2. Review the CRL health using PKIView. Check the status of the CDP locations and determine whether any CRL distribution points are expired, unavailable, or reporting errors.
+3. Use certutil -CRL on the issuing CA to manually publish a new CRL. Confirm that the command completes successfully and does not return errors.
+
+4. Use certutil -URL <certificate file> or certificate validation commands to verify that certificate revocation information can be retrieved from the configured CDP locations. Confirm that valid certificates return a GOOD status and revoked certificates return a REVOKED status.
+
+5. Use certutil -dump on the CA certificate or CRL file to review the CRL details, including the NextUpdate value. Calculate the remaining time until CRL expiration and determine whether the CRL status is healthy, requires attention, or is critical.
+
+6. Review OCSP availability using PKIView by checking the status of configured AIA and OCSP locations. Record whether the endpoints are available or reporting errors.
+
+Use certutil -URL to verify certificate validation through the revocation infrastructure. Test both a valid certificate and a revoked certificate to confirm that OCSP or CRL checking returns the expected results.
+Review the certificate expiration pipeline using certutil commands such as certutil -view to identify certificates that are already expired or approaching expiration. Record certificates requiring renewal or administrative action.
+Use pkiview.msc again after any remediation steps to confirm whether the health indicators have changed and whether previously reported errors have been resolved.
+Document all findings, including PKIView status indicators, certutil validation results, expired certificates, unavailable locations, and any corrective actions required. Assign an overall CA health status of Healthy, Attention Needed, or Action Required based on the collected results.
 ```
 
 ---
