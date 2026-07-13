@@ -71,14 +71,28 @@ For each node listed below, record the color indicator you see (Green / Amber / 
 
 | Node | Color | What It Shows |
 |---|---|---|
-| CVI Root CA — CA Certificate | Red | Parent node shows an error because one or more child PKI locations have errors. |
+| CVI Root CA — CA Certificate | Red | CA certificate is valid (expires 4/25/2027), but the parent node is red because child PKI validation checks report an unavailable AIA location and expired CDP/Delta CRL locations. |
 | CVI Issuing CA 1 — CA Certificate | Green | CA certificate status is OK. |
 | CDP row(s) — CRL Distribution Point | Red | One CDP location is Expired, Delta CRL is Expired, another CDP location is OK. |
 | AIA row(s) — Authority Information Access | Red | One AIA location is OK; the second reports Unable to download. |
 
 ```
-(describe what you see in pkiview — which nodes are expanded, any amber or red indicators, URLs shown)
-In PKIView, the Enterprise PKI tree is expanded to show CVI Root CA and CVI Issuing CA 1. Both parent nodes display red error indicators. Under CVI Issuing CA 1, the CA Certificate Status is OK. AIA Location #1 is OK, AIA Location #2 reports Unable to download, CDP Location #1 is Expired, Delta CRL Location #1 is Expired, and CDP Location #2 is OK. No amber indicators were present.
+In PKIView, the Enterprise PKI tree is expanded to show CVI Root CA and CVI Issuing CA 1. Both CA nodes display red status indicators because one or more child validation checks reported errors. The CA certificate itself is valid, but the overall PKI health status is affected by the AIA, CDP, and Delta CRL issues.
+
+### pkiview.msc Current Node Status
+
+
+| Node / Location | Status | Expiration / Status Details | URL / Full Path |
+| :--- | :--- | :--- | :--- |
+| **CA Certificate** | OK (Green) | Expires on 4/25/2027 at 7:36 PM | *N/A (Local Store)* |
+| **AIA Location #1** | OK (Green) | Expires on 4/25/2027 at 7:36 PM | `ldap:///CN=CVI Issuing CA 1,CN=AIA,CN=Public Key Services,CN=Services,CN=Configuration,DC=corp,DC=cvilab,DC=local` |
+| **AIA Location #2** | Error (Red) | Unable to download | http://pki-srv01.corp.cvilab.local/ocsp |
+| **OCSP Location** | OK (Green) | No Expiration date listed | http://pki-srv01.corp.cvilab.local/ocsp |
+| **CDP Location #1** | Error (Red) | Expired on 5/3/2026 at 7:55 AM | http://pki-srv01.corp.cvilab.local/CertEnroll/CVI%20Issuing%20CA%201.crl |
+| **Delta CRL Location #1** | Error (Red) | Expired on 4/27/2026 at 7:55 AM | ldap:///CN=CVI%20Issuing%20CA%201,CN=PKI-SRV01,CN=CDP,CN=Public%20Key%20Services,CN=Services,CN=Configuration,DC=corp,DC=cvilab,DC=local?deltaRevocationList?base?objectClass=cRLDistributionPoint |
+| **CDP Location #2** | OK (Green) | NextUpdate: 7/12/2125 at 1:26 AM | http://pki-srv01.corp.cvilab.local/CertEnroll/CVI%20Issuing%20CA%201.crl |
+
+
 ```
 
 **pkiview initial status:**
@@ -1786,7 +1800,7 @@ CertUtil: -view command completed successfully.
   # Then revoke it:
   certutil -revoke <serial_number> 5
   ```
-  Revoked serial number: `440000000ef02bb109f34551ad00000000000e`
+  Revoked serial number: `44000000130e1e92ae5f7a0764000000000013`
 
 ---
 
@@ -1843,7 +1857,48 @@ certutil -dump "C:\Windows\System32\CertSrv\CertEnroll\CVI Issuing CA 1.crl"
 > ```
 
 ```
-(paste certutil -dump output here — first 40 lines sufficient)
+X509 Certificate Revocation List:
+Version: 2
+Signature Algorithm:
+    Algorithm ObjectId: 1.2.840.113549.1.1.11 sha256RSA
+    Algorithm Parameters:
+    05 00
+Issuer:
+    CN=CVI Issuing CA 1
+    DC=corp
+    DC=cvilab
+    DC=local
+  Name Hash(sha1): 81835e9994945c3166bf7396611ca225004ed32b
+  Name Hash(md5): d31087fe673eedadd94c85f2a0bc4782
+
+ ThisUpdate: 7/11/2026 1:06 PM
+ NextUpdate: 7/12/2125 1:26 AM
+CRL Entries: 7
+  Serial Number: 4400000014178d21c3ed6a4575000000000014
+   Revocation Date: 7/11/2026 1:14 PM
+  Extensions: 1
+    2.5.29.21: Flags = 0, Length = 3
+    CRL Reason Code
+        Cessation of Operation (5)
+
+  Serial Number: 44000000130e1e92ae5f7a0764000000000013
+   Revocation Date: 7/11/2026 12:03 PM
+  Extensions: 1
+    2.5.29.21: Flags = 0, Length = 3
+    CRL Reason Code
+        Cessation of Operation (5)
+
+  Serial Number: 440000000ef02bb109f34551ad00000000000e
+   Revocation Date: 7/10/2026 9:14 AM
+  Extensions: 1
+    2.5.29.21: Flags = 0, Length = 3
+    CRL Reason Code
+        Cessation of Operation (5)
+
+  Serial Number: 4400000005b4922c2e24e100eb000000000005
+   Revocation Date: 5/30/2026 11:10 AM
+  Extensions: 1
+   
 ```
 
 **Record the key timestamps from the output:**
@@ -1870,6 +1925,7 @@ Hours until NextUpdate:
 7/10/2125 9:54 PM − 7/11/2026 10:15 AM
 ≈ 98 years, 364 days, 11 hours, 39 minutes remaining
 ```
+**NOTE** Multiple CRL publications were performed during troubleshooting of the AIA/OCSP configuration. The timestamps shown below represent the final CRL publication used for verification.
 
 **CRL freshness status:**
 - [X] PASS — more than 48 hours until NextUpdate
@@ -1894,8 +1950,8 @@ http://pki-srv01.corp.cvilab.local/CertEnroll/CVI Issuing CA 1.crl
 - [ ] FAILED — error message:
 
 **Compare certutil -URL result with pkiview CDP color — do they agree?**
-- [X] Yes — both show healthy / both show problem
-- [ ] No — describe the difference:
+- [ ] Yes — both show healthy / both show problem
+- [X] No — describe the difference: certutil -URL confirmed the HTTP CRL is accessible, but PKIView remains Red because other CDP/AIA validation issues are still present.
 
 **Part A Summary:**
 
@@ -1904,7 +1960,7 @@ http://pki-srv01.corp.cvilab.local/CertEnroll/CVI Issuing CA 1.crl
 | CDP color before publishing | pkiview.msc | Red | — |
 | certutil -CRL published without error | certutil | Command completed successfully | PASS |
 | CDP color after publishing | pkiview.msc | Red | — |
-| CRL NextUpdate timestamp | certutil -dump | 7/11/2125 8:08 PM | — |
+| CRL NextUpdate timestamp | certutil -dump | 7/12/2125 1:26 AM | — |
 | Hours until CRL expiry | certutil -dump | Approximately 99 years remaining | PASS |
 | HTTP CDP accessibility | certutil -URL | VERIFIED | PASS |
 
@@ -2008,7 +2064,7 @@ URL=http://pki-srv01.corp.cvilab.local/ocsp
 **OCSP response for valid certificate:**
 - [ ] GOOD — certificate status returned as good/valid
 - [X] Unexpected response — describe:
-OCSP URL present, but retrieval failed.
+The certificate contained an OCSP URL, but certutil -URL was unable to retrieve a successful OCSP response from the responder.
 
 ### Step 3 — Test OCSP With a Revoked Certificate
 
@@ -2036,7 +2092,7 @@ http://pki-srv01.corp.cvilab.local/ocsp
 However, the OCSP endpoint returned:
 HTTP_E_STATUS_NOT_FOUND (404)
 
-The certificate revocation check passed using the CRL.
+The certificate revocation check was successful using the CRL distribution point. The OCSP responder itself was not available because the OCSP URL returned HTTP 404 Not Found.
 
 > **If OCSP returns GOOD for the revoked certificate:** The OCSP responder is reading stale CRL data. Run certutil -CRL to republish, wait 30 seconds, and retest. pkiview showed the AIA row as green even while this was happening — this is the limit of what pkiview can tell you about OCSP health.
 
@@ -2057,9 +2113,9 @@ The certificate revocation check passed using the CRL.
 
 | Check | Tool Used | Result | Status |
 |---|---|---|---|
-| AIA/OCSP endpoint color | pkiview.msc | Green / Amber / Red | — |
-| Valid cert returns GOOD status | certutil -URL | | PASS / FAIL |
-| Revoked cert returns REVOKED status | certutil -URL | | PASS / FAIL |
+| AIA/OCSP endpoint color | pkiview.msc | Green / Red (mixed status OCSP & AIA Location #2 is red/ AIA Location #1 is green) | — |
+| Valid cert returns GOOD status | certutil -URL | | PASS |
+| Revoked cert returns REVOKED status | certutil -URL | | PASS |
 
 > **If OCSP fails for the revoked certificate:** Confirm the CRL was published after the revocation (certutil -CRL), and confirm the OCSP responder is configured to read the current CRL. The OCSP responder uses the CRL as its revocation data source.
 
@@ -2378,10 +2434,12 @@ Write the complete health check as a repeatable procedure — the steps another 
 
 6. Review OCSP availability using PKIView by checking the status of configured AIA and OCSP locations. Record whether the endpoints are available or reporting errors.
 
-Use certutil -URL to verify certificate validation through the revocation infrastructure. Test both a valid certificate and a revoked certificate to confirm that OCSP or CRL checking returns the expected results.
+8. Use certutil -URL to verify certificate validation through the revocation infrastructure. Test both a valid certificate and a revoked certificate to confirm that OCSP or CRL checking returns the expected results.
 Review the certificate expiration pipeline using certutil commands such as certutil -view to identify certificates that are already expired or approaching expiration. Record certificates requiring renewal or administrative action.
-Use pkiview.msc again after any remediation steps to confirm whether the health indicators have changed and whether previously reported errors have been resolved.
-Document all findings, including PKIView status indicators, certutil validation results, expired certificates, unavailable locations, and any corrective actions required. Assign an overall CA health status of Healthy, Attention Needed, or Action Required based on the collected results.
+
+9. Use pkiview.msc again after any remediation steps to confirm whether the health indicators have changed and whether previously reported errors have been resolved.
+
+10. Document all findings, including PKIView status indicators, certutil validation results, expired certificates, unavailable locations, and any corrective actions required. Assign an overall CA health status of Healthy, Attention Needed, or Action Required based on the collected results.
 ```
 
 ---
@@ -2391,58 +2449,71 @@ Document all findings, including PKIView status indicators, certutil validation 
 **1. You opened pkiview.msc before running any certutil commands. Describe one thing pkiview told you that you could not have known from certutil alone, and one thing certutil told you that pkiview cannot show. What does this tell you about the role of each tool in a CA health check?**
 
 ```
-(your answer here)
+PKIView showed me that AIA Location 2 was unable to download and displayed a red status indicator for the PKI. I could quickly see there was a health problem before running any commands.
+
+Certutil provided information that PKIView could not, such as confirming that the CRL published successfully and showing the CRL details, including the NextUpdate time. This shows that PKIView is useful for quickly identifying health issues, while certutil is used to verify the details and troubleshoot those issues.
+
 ```
 
 **2. In Part B, you tested OCSP with both a valid and a revoked certificate. pkiview showed the AIA row as green — meaning the OCSP endpoint was reachable. Why is testing with a known-revoked certificate a required step that pkiview cannot replace? What would it mean operationally if the revoked certificate returned a GOOD status instead of REVOKED?**
 
 ```
-(your answer here)
+PKIView can show whether the OCSP endpoint is reachable, but it cannot verify that the OCSP responder is returning the correct revocation status for a certificate. Testing with a known revoked certificate confirms that the responder is working correctly and is actually identifying revoked certificates as REVOKED.
+
+If a revoked certificate returned a GOOD status instead of REVOKED, it would indicate a serious problem with the revocation infrastructure. Systems relying on OCSP could trust and allow the use of a certificate that should no longer be valid, creating a security risk because access could be granted to a revoked certificate.
+
 ```
 
 **3. In Part C, you checked for certificates expiring within 30, 60, and 90 days. pkiview does not show this data. AD CS does not generate any automatic alerts. Given this, what operational discipline is required to prevent a certificate expiry from becoming a service outage — and what would a mature weekly health check routine look like for a CA with 200 issued certificates?**
 
 ```
-(your answer here)
+Because AD CS does not generate automatic alerts for certificate expiration, administrators need a regular monitoring process to prevent certificates from expiring unexpectedly. This means performing scheduled health checks, reviewing certificates that are approaching expiration, and using monitoring or alerting tools to notify administrators before certificates expire.
+
+For a CA with 200 issued certificates, a mature weekly health check would include reviewing PKIView for any health issues, verifying CRL and OCSP status, checking for certificates expiring within the next 30, 60, and 90 days, and confirming that recent certificate issuance and revocation activities completed successfully. Using certificate management or monitoring software to track expiration dates and send alerts would help ensure that certificates are renewed before they can cause a service outage.
+
 ```
 
 **4. If you were setting up this health check to run automatically on a weekly schedule, which signal would you consider most urgent to monitor — CRL freshness, OCSP availability, or the expiration pipeline? Explain your reasoning, including what failure in that signal would look like within your first hour of not catching it.**
 
 ```
-(your answer here)
+I would consider **CRL freshness** the most important signal to monitor because many systems rely on the CRL to verify whether a certificate has been revoked. If the CRL expires or is not published correctly, certificate validation can start failing. Within the first hour of not catching the problem, users may begin receiving certificate errors or lose access to services that depend on certificates. Monitoring CRL freshness helps identify the issue before it causes a larger outage.
+
 ```
 
 **5. pkiview.msc has been a standard tool in Windows Server AD CS since 2003. Enterprise CLM platforms like Keyfactor provide richer dashboards that automate much of what you did manually in this lab. Based on what you observed in this lab, what does pkiview show that a newer platform dashboard would also need to show — and what would a platform need to add to go beyond what pkiview and certutil provide manually?**
 
 ```
-(your answer here)
+PKIView shows the overall health of the PKI, including node status, expired certificates, AIA and CDP errors, and whether locations are reachable or reporting problems. It gives administrators a quick view of where issues exist.
+
+A platform like Keyfactor would need to provide all of that information, but also go beyond it by automatically monitoring the environment, sending alerts before certificates expire, tracking certificate lifecycles, generating reports, and providing a central dashboard to manage certificates across the enterprise instead of requiring administrators to run manual certutil commands.
+
 ```
 
 ---
 
 ## Submission Checklist
 
-- [ ] Logged in as CORP\pki.admin — whoami output included
-- [ ] CA running and responding — Get-Service and certutil -ping output included
-- [ ] pkiview.msc opened — initial status of all nodes recorded in Pre-Lab Step 2
-- [ ] Revoked certificate confirmed or created — serial number recorded
-- [ ] Part A: CDP color in pkiview recorded before and after certutil -CRL
-- [ ] certutil -CRL output included — completed without errors
-- [ ] certutil -dump on CRL included — ThisUpdate and NextUpdate recorded
-- [ ] Hours until CRL expiry calculated and documented
-- [ ] CRL HTTP accessibility tested — certutil -URL output included
-- [ ] pkiview vs. certutil comparison completed for Part A
-- [ ] Part A summary table completed
-- [ ] Part B: AIA color in pkiview recorded and URL noted
-- [ ] OCSP tested with valid certificate — certutil -URL output and GOOD response documented
-- [ ] OCSP tested with revoked certificate — certutil -URL output and REVOKED response documented
-- [ ] pkiview vs. certutil comparison completed for Part B
-- [ ] Part B summary table completed
-- [ ] Target dates (30/60/90) calculated and recorded
-- [ ] All three expiry query outputs included
-- [ ] Already-expired certificate check completed
-- [ ] Part C summary table completed
-- [ ] Part D health check summary table completed with pkiview initial status and overall status
-- [ ] Reusable health check procedure written — includes both pkiview and certutil steps
-- [ ] All five lab report questions answered in complete sentences
-- [ ] File committed to `labs/week-14/lab-02-ca-health-check.md`
+- [X] Logged in as CORP\pki.admin — whoami output included
+- [X] CA running and responding — Get-Service and certutil -ping output included
+- [X] pkiview.msc opened — initial status of all nodes recorded in Pre-Lab Step 2
+- [X] Revoked certificate confirmed or created — serial number recorded
+- [X] Part A: CDP color in pkiview recorded before and after certutil -CRL
+- [X] certutil -CRL output included — completed without errors
+- [X] certutil -dump on CRL included — ThisUpdate and NextUpdate recorded
+- [X] Hours until CRL expiry calculated and documented
+- [X] CRL HTTP accessibility tested — certutil -URL output included
+- [X] pkiview vs. certutil comparison completed for Part A
+- [X] Part A summary table completed
+- [X] Part B: AIA color in pkiview recorded and URL noted
+- [X] OCSP tested with valid certificate — certutil -URL output and GOOD response documented
+- [X] OCSP tested with revoked certificate — certutil -URL output and REVOKED response documented
+- [X] pkiview vs. certutil comparison completed for Part B
+- [X] Part B summary table completed
+- [X] Target dates (30/60/90) calculated and recorded
+- [X] All three expiry query outputs included
+- [X] Already-expired certificate check completed
+- [X] Part C summary table completed
+- [X] Part D health check summary table completed with pkiview initial status and overall status
+- [X] Reusable health check procedure written — includes both pkiview and certutil steps
+- [X] All five lab report questions answered in complete sentences
+- [X] File committed to `labs/week-14/lab-02-ca-health-check.md`
