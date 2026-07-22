@@ -5,7 +5,7 @@ Lufann Stewart
 **Phase:** 2 | **Week:** 15
 **Submission Path:** `labs/week-15/lab-01-autoenrollment-gpo.md`
 
----
+---NOTES need to run the -catemplates again and list whats tere right now auto enroll still appears denied for the template we want to use.
 
 ## Overview
 
@@ -127,16 +127,20 @@ Locate your chosen template, right-click → Properties → Security tab.
 
 Add the **Domain Computers** group (or a dedicated security group if you've configured one) and check all three boxes:
 
-- [ ] Read
-- [ ] Enroll
-- [ ] Autoenroll
+- [X] Read
+- [X] Enroll
+- [X] Autoenroll
 
 ```
-(paste a screenshot description or list the exact permission entries you configured)
+- Group: Domain Computers 
+- Access Permissions Granted:
+  - Read: Allow
+  - Enroll: Allow
+  - Autoenroll: Allow
 ```
 
 **All three permissions granted to the correct group:**
-- [ ] Yes
+- [X] Yes
 - [ ] No — describe what's missing:
 
 ### Step 3 — Confirm the Template Is Published on the CA
@@ -146,15 +150,34 @@ certutil -CATemplates
 ```
 
 ```
-(paste output here — confirm your template appears in the list)
+CVI-WebServer11: CVI-WebServer11 -- Auto-Enroll: Access is denied.
+CVICodeSigning1: CVI Code Signing1 -- Auto-Enroll: Access is denied.
+CVI-WebServer1: CVI-WebServer1 -- Auto-Enroll: Access is denied.
+CodeSigning: Code Signing -- Auto-Enroll: Access is denied.
+OCSPResponseSigning: OCSP Response Signing -- Auto-Enroll
+CVI-ServiceAccount: CVI Service Account -- Auto-Enroll
+CVICodeSigning: CVI Code Signing -- Auto-Enroll: Access is denied.
+CVI-WebServer: CVI-WebServer -- Auto-Enroll: Access is denied.
+DirectoryEmailReplication: Directory Email Replication -- Auto-Enroll: Access is denied.
+DomainControllerAuthentication: Domain Controller Authentication -- Auto-Enroll: Access is denied.
+KerberosAuthentication: Kerberos Authentication -- Auto-Enroll: Access is denied.
+EFSRecovery: EFS Recovery Agent -- Auto-Enroll: Access is denied.
+EFS: Basic EFS -- Auto-Enroll: Access is denied.
+DomainController: Domain Controller -- Auto-Enroll: Access is denied.
+WebServer: Web Server -- Auto-Enroll: Access is denied.
+Machine: Computer -- Auto-Enroll: Access is denied.
+User: User -- Auto-Enroll: Access is denied.
+SubCA: Subordinate Certification Authority -- Auto-Enroll: Access is denied.
+Administrator: Administrator -- Auto-Enroll: Access is denied.
+CertUtil: -CATemplates command completed successfully.
 ```
 
 **Part A Summary:**
 
 | Check | Result |
 |---|---|
-| Template has Read + Enroll + Autoenroll for the target group | Yes / No |
-| Template is published on the CA | Yes / No |
+| Template has Read + Enroll + Autoenroll for the target group | Yes |
+| Template is published on the CA | Yes |
 
 ---
 
