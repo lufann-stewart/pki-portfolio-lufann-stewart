@@ -5,8 +5,11 @@ Lufann Stewart
 **Phase:** 2 | **Week:** 15
 **Submission Path:** `labs/week-15/lab-01-autoenrollment-gpo.md`
 
----NOTES need to run the -catemplates again and list whats tere right now auto enroll still appears denied for the template we want to use.
+---NOTES  left off at Then confirm from the command line:
 
+```powershell
+certutil -viewstore -enterprise "MY"
+```
 ## Overview
 
 In this lab, you configure real, hands-on certificate autoenrollment in your OVA environment — the mechanism that makes enterprise PKI practical at scale. You will grant autoenrollment permissions on a certificate template, create and link a Group Policy Object to enable the Certificate Services Client, force a policy update on CLIENT01, and verify successful autoenrollment using both the Certificates MMC and certutil.
@@ -284,7 +287,12 @@ certlm.msc
 ```
 
 ```
-(describe the certificate you see — subject, issuer, template, validity dates) 
+* **Subject:** `CN = PKI-SRV01.corp.cvilab.local`
+* **Issuer:** `CN = CVI Issuing CA 1, DC = corp, DC = cvilab, DC = local`
+* **Template:** `CVI-WebServer1 (1.3.6.1.4.1.311.21.8.15886664.4298044.8996776.14853544.7902291.169.14614516.7651276)`
+* **Template Version:** `Major: 100, Minor: 4`
+* **Valid From:** `Wednesday, July 22, 2026 9:38:26 AM`
+* **Valid To:** `Sunday, April 25, 2027 7:36:58 PM`
 ```
 
 Then confirm from the command line:
@@ -294,7 +302,9 @@ certutil -viewstore -enterprise "MY"
 ```
 
 ```
-(paste output here)
+MY "Personal"
+CertUtil: -viewstore command FAILED: 0x80070002 (WIN32: 2 ERROR_FILE_NOT_FOUND)
+CertUtil: The system cannot find the file specified.
 ```
 
 **Certificate successfully autoenrolled on CLIENT01:**
