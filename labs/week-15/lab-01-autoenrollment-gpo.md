@@ -89,7 +89,7 @@ certutil -CATemplates
 ```
 CVI-WebServer11: CVI-WebServer11 -- Auto-Enroll: Access is denied.
 CVICodeSigning1: CVI Code Signing1 -- Auto-Enroll: Access is denied.
-CVI-WebServer1: CVI-WebServer1 -- Auto-Enroll: Access is denied.
+CVI-WebServer1: CVI-WebServer1 -- Auto-Enroll
 CodeSigning: Code Signing -- Auto-Enroll: Access is denied.
 OCSPResponseSigning: OCSP Response Signing -- Auto-Enroll
 CVI-ServiceAccount: CVI Service Account -- Auto-Enroll
@@ -152,7 +152,7 @@ certutil -CATemplates
 ```
 CVI-WebServer11: CVI-WebServer11 -- Auto-Enroll: Access is denied.
 CVICodeSigning1: CVI Code Signing1 -- Auto-Enroll: Access is denied.
-CVI-WebServer1: CVI-WebServer1 -- Auto-Enroll: Access is denied.
+CVI-WebServer1: CVI-WebServer1 -- Auto-Enroll
 CodeSigning: Code Signing -- Auto-Enroll: Access is denied.
 OCSPResponseSigning: OCSP Response Signing -- Auto-Enroll
 CVI-ServiceAccount: CVI Service Account -- Auto-Enroll
@@ -209,7 +209,7 @@ Computer Configuration
 ```
 
 ```
-(confirm and describe the settings you enabled)
+Enabled the Certificate Services Client - Auto-Enrollment policy under Computer Configuration → Public Key Policies. Configured the Configuration Model to "Enabled" and checked both options to automatically renew expired certificates, update pending requests, remove revoked certificates, and update certificates using updated templates.
 ```
 
 ### Step 3 — Link the GPO to the CVI Workstations OU
@@ -222,8 +222,8 @@ Right-click "CVI Workstations" OU → Link an Existing GPO → CVI Certificate A
 
 | Check | Result |
 |---|---|
-| GPO created with correct auto-enrollment settings | Yes / No |
-| GPO linked to CVI Workstations OU | Yes / No |
+| GPO created with correct auto-enrollment settings | Yes |
+| GPO linked to CVI Workstations OU | Yes |
 
 ---
 
@@ -238,7 +238,13 @@ gpupdate /force
 ```
 
 ```
-(paste output here)
+Updating policy...
+
+
+
+Computer Policy update has completed successfully.
+
+User Policy update has completed successfully.
 ```
 
 ### Step 2 — Verify Autoenrollment Policy Applied
@@ -248,11 +254,24 @@ gpresult /r
 ```
 
 ```
-(paste the relevant section showing "CVI Certificate Autoenrollment" applied)
+
+COMPUTER SETTINGS
+------------------
+    CN=PKI-SRV01,OU=CVI Workstations,DC=corp,DC=cvilab,DC=local
+    Last time Group Policy was applied: 7/23/2026 at 8:55:09 AM
+    Group Policy was applied from:      DC01.corp.cvilab.local
+    Group Policy slow link threshold:   500 kbps
+    Domain Name:                        CORP
+    Domain Type:                        Windows 2008 or later
+
+    Applied Group Policy Objects
+    -----------------------------
+        CVI Certificate Autoenrollment
+        Default Domain Policy
 ```
 
 **GPO confirmed applied to CLIENT01:**
-- [ ] Yes
+- [X] Yes
 - [ ] No — troubleshoot: check OU membership, GPO link, and replication (`repadmin /syncall`)
 
 ### Step 3 — Verify the Certificate Was Issued
@@ -265,7 +284,7 @@ certlm.msc
 ```
 
 ```
-(describe the certificate you see — subject, issuer, template, validity dates)
+(describe the certificate you see — subject, issuer, template, validity dates) 
 ```
 
 Then confirm from the command line:
